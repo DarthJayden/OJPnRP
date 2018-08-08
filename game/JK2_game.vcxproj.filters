@@ -332,6 +332,9 @@
     <ClCompile Include="WalkerNPC.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="g_roll.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ai.h">
@@ -486,6 +489,9 @@
     </ClInclude>
     <ClInclude Include="..\icarus\Q3_Interface.h">
       <Filter>Header Files\ICARUS Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="g_roll.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

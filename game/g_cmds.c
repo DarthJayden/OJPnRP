@@ -2,6 +2,7 @@
 //
 #include "g_local.h"
 #include "bg_saga.h"
+#include "g_roll.h"
 
 //[SVN]
 //rearraigned repository to make it easier to initially compile.
@@ -17,9 +18,9 @@ extern	qboolean		in_camera;
 int AcceptBotCommand(char *cmd, gentity_t *pl);
 //end rww
 
-#include "../namespace_begin.h"
+// #include "../namespace_begin.h" Jayden: depricated
 void WP_SetSaber( int entNum, saberInfo_t *sabers, int saberNum, const char *saberName );
-#include "../namespace_end.h"
+// #include "../namespace_end.h" Jayden: depricated
 
 void Cmd_NPC_f( gentity_t *ent );
 void SetTeamQuick(gentity_t *ent, int team, qboolean doBegin);
@@ -4201,6 +4202,38 @@ qboolean TryGrapple(gentity_t *ent)
 	return qfalse;
 }
 
+//EMOTE BITRATES HAVE ARRIVED!!!!
+typedef enum
+{
+	E_MYHEAD = 0,
+	E_COWER,
+	E_SMACK,
+	E_ENRAGED,
+	E_VICTORY1,
+	E_VICTORY2,
+	E_VICTORY3,
+	E_SWIRL,
+	E_DANCE1,
+	E_DANCE2,
+	E_DANCE3,
+	E_SIT1,
+	E_SIT2,
+	E_SIT3,
+	E_SIT4,
+	E_SIT5,
+	E_KNEEL1,
+	E_KNEEL2,
+	E_KNEEL3,
+	E_SLEEP,
+	E_BREAKDANCE,
+	E_CHEER,
+	E_SURRENDER,
+	E_CONSOLE, //JAYA
+	E_POINT //Jaya
+} emote_type_t;
+//RoAR mod END
+
+
 #ifndef FINAL_BUILD
 qboolean saberKnockOutOfHand(gentity_t *saberent, gentity_t *saberOwner, vec3_t velocity);
 #endif
@@ -4264,6 +4297,12 @@ void ClientCommand( int clientNum ) {
 		ent->client->ps.iModelScale=size;
 		//ent->client->ps.stats[STAT_MAX_DODGE] = ((100-size)*(ent->client->ps.stats[STAT_DODGE]/100))/2;
  
+		return;
+	}
+
+	if (!Q_stricmp(cmd, "roll"))
+	{
+		Cmd_Roll_F(ent);
 		return;
 	}
 
@@ -4595,6 +4634,512 @@ void ClientCommand( int clientNum ) {
 	{
 		Delete_Autosaves(ent);
 	}
+
+	else if (Q_stricmp(cmd, "emotes") == 0)
+	{
+		trap_SendServerCommand(ent - g_entities, "print \"^3===^1EMOTES^3===\n\n^5/dance1, /dance2, /dance3, /taunt, /cower, /smack, /swirl\n/kneel1, /kneel2, /kneel3, /breakdance, /laydown, /myhead, /cheer\n/sit1, /sit2, /sit3, /sit4, /sit5, /sit6, /sit7, /surrender, /enraged\n/victory1, /victory2, /victory3, /choke1, /choke3\n/wait1, /wait2, /wait3, /die1, /die2, /die3, /die4, /consoletyping, /point\n\n\"");
+	}
+
+	//EMOTES BEGIN HERE
+	else if ((Q_stricmp(cmd, "point") == 0) || (Q_stricmp(cmd, "ampoint") == 0))
+	{
+		if (!(roar_emoteControl.integer & (1 << E_POINT)))
+		{
+			trap_SendServerCommand(ent - g_entities, va("print \"This emote is not allowed on this server.\n\""));
+			return;
+		}
+		if (ent->client->ps.groundEntityNum == ENTITYNUM_NONE)
+		{
+			return;
+		}
+		if (ent->client->ps.duelInProgress)
+		{
+			trap_SendServerCommand(ent - g_entities, va("print \"^7Emotes not allowed in duel!\n\""));
+			return;
+		}
+		else {
+			if (ent->client->ps.legsAnim == BOTH_FORCELIGHTNING_HOLD)
+			{
+				ent->client->ps.forceDodgeAnim = 0;
+				ent->client->ps.forceHandExtendTime = 0;
+				//ent->client->emote_freeze = 0;
+				ent->client->ps.saberCanThrow = qtrue;
+			}
+			else
+			{
+				ent->client->ps.forceHandExtend = HANDEXTEND_TAUNT;
+				ent->client->ps.forceDodgeAnim = BOTH_FORCELIGHTNING_HOLD;
+				ent->client->ps.forceHandExtendTime = level.time + Q3_INFINITE;
+				ent->client->ps.saberCanThrow = qfalse;
+				//ent->client->emote_freeze = 1;
+				StandardSetBodyAnim(ent, BOTH_FORCELIGHTNING_HOLD, SETANIM_FLAG_OVERRIDE | SETANIM_FLAG_HOLD | SETANIM_FLAG_HOLDLESS);
+				ent->client->ps.saberMove = LS_NONE;
+				ent->client->ps.saberBlocked = 0;
+				ent->client->ps.saberBlocking = 0;
+			}
+		}
+	}
+	else if (Q_stricmp(cmd, "consoletyping") == 0)
+	{
+		if (!(roar_emoteControl.integer & (1<<E_CONSOLE)))
+		{
+			trap_SendServerCommand(ent - g_entities, va("print \"This emote is not allowed on this server.\n\""));
+			return;
+		}
+		if (ent->client->ps.duelInProgress)
+		{
+			trap_SendServerCommand(ent - g_entities, va("print \"^7Emotes not allowed in duel!\n\""));
+			return;
+		}
+	   else
+	{
+	
+		StandardSetBodyAnim(ent, BOTH_CONSOLE1, SETANIM_FLAG_OVERRIDE | SETANIM_FLAG_HOLD | SETANIM_FLAG_HOLDLESS);
+	}
+ }
+    else if (Q_stricmp(cmd, "myhead") == 0)
+    {
+        if (!(roar_emoteControl.integer & (1 << E_MYHEAD)))
+        {
+            trap_SendServerCommand(ent - g_entities, va("print \"This emote is not allowed on this server.\n\""));
+            return;
+        }
+        if (ent->client->ps.duelInProgress)
+        {
+            trap_SendServerCommand(ent - g_entities, va("print \"^7Emotes not allowed in duel!\n\""));
+            return;
+        }
+        else {
+     //       G_Sound(ent, CHAN_AUTO, G_SoundIndex("sound/chars/humanmerc1/misc/escaping1")); Джайден: к чёрту жуткий мужицкий голос.
+            StandardSetBodyAnim(ent, BOTH_SONICPAIN_HOLD, SETANIM_FLAG_OVERRIDE | SETANIM_FLAG_HOLD | SETANIM_FLAG_HOLDLESS);
+        }
+    }
+    else if ((Q_stricmp(cmd, "cower") == 0) || (Q_stricmp(cmd, "amcower") == 0))
+    {
+        if (!(roar_emoteControl.integer & (1 << E_COWER)))
+        {
+            trap_SendServerCommand(ent - g_entities, va("print \"This emote is not allowed on this server.\n\""));
+            return;
+        }
+        if (ent->client->ps.groundEntityNum == ENTITYNUM_NONE)
+        {
+            return;
+        }
+        if (ent->client->ps.duelInProgress)
+        {
+            trap_SendServerCommand(ent - g_entities, va("print \"^7Emotes not allowed in duel!\n\""));
+            return;
+        }
+        else {
+            StandardSetBodyAnim(ent, BOTH_COWER1, SETANIM_FLAG_OVERRIDE | SETANIM_FLAG_HOLD | SETANIM_FLAG_HOLDLESS);
+        }
+    }
+    else if ((Q_stricmp(cmd, "smack") == 0) || (Q_stricmp(cmd, "amsmack") == 0))
+    {
+        if (!(roar_emoteControl.integer & (1 << E_SMACK)))
+        {
+            trap_SendServerCommand(ent - g_entities, va("print \"This emote is not allowed on this server.\n\""));
+            return;
+        }
+        if (ent->client->ps.duelInProgress)
+        {
+            trap_SendServerCommand(ent - g_entities, va("print \"^7Emotes not allowed in duel!\n\""));
+            return;
+        }
+        else {
+            StandardSetBodyAnim(ent, BOTH_TOSS1, SETANIM_FLAG_OVERRIDE | SETANIM_FLAG_HOLD | SETANIM_FLAG_HOLDLESS);
+        }
+    }
+    else if ((Q_stricmp(cmd, "enraged") == 0) || (Q_stricmp(cmd, "amenraged") == 0))
+    {
+        if (!(roar_emoteControl.integer & (1 << E_ENRAGED)))
+        {
+            trap_SendServerCommand(ent - g_entities, va("print \"This emote is not allowed on this server.\n\""));
+            return;
+        }
+        if (ent->client->ps.duelInProgress)
+        {
+            trap_SendServerCommand(ent - g_entities, va("print \"^7Emotes not allowed in duel!\n\""));
+            return;
+        }
+        else {
+            StandardSetBodyAnim(ent, BOTH_FORCE_RAGE, SETANIM_FLAG_OVERRIDE | SETANIM_FLAG_HOLD | SETANIM_FLAG_HOLDLESS);
+        }
+    }
+    else if ((Q_stricmp(cmd, "victory1") == 0) || (Q_stricmp(cmd, "amvictory1") == 0))
+    {
+        if (!(roar_emoteControl.integer & (1 << E_VICTORY1)))
+        {
+            trap_SendServerCommand(ent - g_entities, va("print \"This emote is not allowed on this server.\n\""));
+            return;
+        }
+        if (ent->client->ps.groundEntityNum == ENTITYNUM_NONE)
+        {
+            return;
+        }
+        if (ent->client->ps.duelInProgress)
+        {
+            trap_SendServerCommand(ent - g_entities, va("print \"^7Emotes not allowed in duel!\n\""));
+            return;
+        }
+        else {
+            StandardSetBodyAnim(ent, BOTH_TAVION_SWORDPOWER, SETANIM_FLAG_OVERRIDE | SETANIM_FLAG_HOLD | SETANIM_FLAG_HOLDLESS);
+        }
+    }
+    else if ((Q_stricmp(cmd, "victory2") == 0) || (Q_stricmp(cmd, "amvictory2") == 0))
+    {
+        if (!(roar_emoteControl.integer & (1 << E_VICTORY2)))
+        {
+            trap_SendServerCommand(ent - g_entities, va("print \"This emote is not allowed on this server.\n\""));
+            return;
+        }
+        if (ent->client->ps.groundEntityNum == ENTITYNUM_NONE)
+        {
+            return;
+        }
+        if (ent->client->ps.duelInProgress)
+        {
+            trap_SendServerCommand(ent - g_entities, va("print \"^7Emotes not allowed in duel!\n\""));
+            return;
+        }
+        else {
+            StandardSetBodyAnim(ent, BOTH_TAVION_SCEPTERGROUND, SETANIM_FLAG_OVERRIDE | SETANIM_FLAG_HOLD | SETANIM_FLAG_HOLDLESS);
+        }
+    }
+    else if ((Q_stricmp(cmd, "victory3") == 0) || (Q_stricmp(cmd, "amvictory3") == 0))
+    {
+        if (!(roar_emoteControl.integer & (1 << E_VICTORY3)))
+        {
+            trap_SendServerCommand(ent - g_entities, va("print \"This emote is not allowed on this server.\n\""));
+            return;
+        }
+        if (ent->client->ps.groundEntityNum == ENTITYNUM_NONE)
+        {
+            return;
+        }
+        if (ent->client->ps.duelInProgress)
+        {
+            trap_SendServerCommand(ent - g_entities, va("print \"^7Emotes not allowed in duel!\n\""));
+            return;
+        }
+        else {
+            StandardSetBodyAnim(ent, BOTH_ALORA_TAUNT, SETANIM_FLAG_OVERRIDE | SETANIM_FLAG_HOLD | SETANIM_FLAG_HOLDLESS);
+        }
+    }
+    else if ((Q_stricmp(cmd, "swirl") == 0) || (Q_stricmp(cmd, "amswirl") == 0))
+    {
+        if (!(roar_emoteControl.integer & (1 << E_SWIRL)))
+        {
+            trap_SendServerCommand(ent - g_entities, va("print \"This emote is not allowed on this server.\n\""));
+            return;
+        }
+        if (ent->client->ps.duelInProgress)
+        {
+            trap_SendServerCommand(ent - g_entities, va("print \"^7Emotes not allowed in duel!\n\""));
+            return;
+        }
+        else {
+            StandardSetBodyAnim(ent, BOTH_CWCIRCLELOCK, SETANIM_FLAG_OVERRIDE | SETANIM_FLAG_HOLD | SETANIM_FLAG_HOLDLESS);
+        }
+    }
+    else if ((Q_stricmp(cmd, "dance1") == 0) || (Q_stricmp(cmd, "amdance1") == 0))
+    {
+        if (!(roar_emoteControl.integer & (1 << E_DANCE1)))
+        {
+            trap_SendServerCommand(ent - g_entities, va("print \"This emote is not allowed on this server.\n\""));
+            return;
+        }
+        if (ent->client->ps.groundEntityNum == ENTITYNUM_NONE)
+        {
+            return;
+        }
+        if (ent->client->ps.duelInProgress)
+        {
+            trap_SendServerCommand(ent - g_entities, va("print \"^7Emotes not allowed in duel!\n\""));
+            return;
+        }
+        if (!BG_SaberInAttack(ent->client->ps.saberMove) &&
+            !BG_SaberInSpecialAttack(ent->client->ps.saberMove) &&
+            !ent->client->ps.saberLockTime)
+        {
+            StandardSetBodyAnim(ent, BOTH_BUTTERFLY_LEFT, SETANIM_FLAG_OVERRIDE | SETANIM_FLAG_HOLD | SETANIM_FLAG_HOLDLESS);
+        }
+    }
+    else if ((Q_stricmp(cmd, "dance2") == 0) || (Q_stricmp(cmd, "amdance2") == 0))
+    {
+        if (!(roar_emoteControl.integer & (1 << E_DANCE2)))
+        {
+            trap_SendServerCommand(ent - g_entities, va("print \"This emote is not allowed on this server.\n\""));
+            return;
+        }
+        if (ent->client->ps.groundEntityNum == ENTITYNUM_NONE)
+        {
+            return;
+        }
+        if (ent->client->ps.duelInProgress)
+        {
+            trap_SendServerCommand(ent - g_entities, va("print \"^7Emotes not allowed in duel!\n\""));
+            return;
+        }
+        if (!BG_SaberInAttack(ent->client->ps.saberMove) &&
+            !BG_SaberInSpecialAttack(ent->client->ps.saberMove) &&
+            !ent->client->ps.saberLockTime)
+        {
+            StandardSetBodyAnim(ent, BOTH_BUTTERFLY_RIGHT, SETANIM_FLAG_OVERRIDE | SETANIM_FLAG_HOLD | SETANIM_FLAG_HOLDLESS);
+        }
+    }
+    else if ((Q_stricmp(cmd, "dance3") == 0) || (Q_stricmp(cmd, "amdance3") == 0))
+    {
+        if (!(roar_emoteControl.integer & (1 << E_DANCE3)))
+        {
+            trap_SendServerCommand(ent - g_entities, va("print \"This emote is not allowed on this server.\n\""));
+            return;
+        }
+        if (ent->client->ps.groundEntityNum == ENTITYNUM_NONE)
+        {
+            return;
+        }
+        if (ent->client->ps.duelInProgress)
+        {
+            trap_SendServerCommand(ent - g_entities, va("print \"^7Emotes not allowed in duel!\n\""));
+            return;
+        }
+        if (!BG_SaberInAttack(ent->client->ps.saberMove) &&
+            !BG_SaberInSpecialAttack(ent->client->ps.saberMove) &&
+            !ent->client->ps.saberLockTime)
+        {
+            StandardSetBodyAnim(ent, BOTH_FJSS_TR_BL, SETANIM_FLAG_OVERRIDE | SETANIM_FLAG_HOLD | SETANIM_FLAG_HOLDLESS);
+        }
+    }
+    else if ((Q_stricmp(cmd, "sit5") == 0) || (Q_stricmp(cmd, "amsit5") == 0))
+    {
+        if (!(roar_emoteControl.integer & (1 << E_SIT5)))
+        {
+            trap_SendServerCommand(ent - g_entities, va("print \"This emote is not allowed on this server.\n\""));
+            return;
+        }
+        if (ent->client->ps.groundEntityNum == ENTITYNUM_NONE)
+        {
+            return;
+        }
+        if (ent->client->ps.duelInProgress)
+        {
+            trap_SendServerCommand(ent - g_entities, va("print \"^7Emotes not allowed in duel!\n\""));
+            return;
+        }
+        else {
+            if (ent->client->ps.legsAnim == BOTH_SLEEP6START)
+            {
+                ent->client->ps.forceDodgeAnim = 0;
+                ent->client->ps.forceHandExtendTime = 0;
+                //ent->client->emote_freeze = 0;
+                ent->client->ps.saberCanThrow = qtrue;
+            }
+            else
+            {
+                ent->client->ps.forceHandExtend = HANDEXTEND_TAUNT;
+                ent->client->ps.forceDodgeAnim = BOTH_SLEEP6START;
+                ent->client->ps.forceHandExtendTime = level.time + Q3_INFINITE;
+                ent->client->ps.saberCanThrow = qfalse;
+                //ent->client->emote_freeze = 1;
+                StandardSetBodyAnim(ent, BOTH_SLEEP6START, SETANIM_FLAG_OVERRIDE | SETANIM_FLAG_HOLD | SETANIM_FLAG_HOLDLESS);
+                ent->client->ps.saberMove = LS_NONE;
+                ent->client->ps.saberBlocked = 0;
+                ent->client->ps.saberBlocking = 0;
+            }
+        }
+    }
+    else if ((Q_stricmp(cmd, "sit6") == 0) || (Q_stricmp(cmd, "amsit6") == 0))
+    {
+        if (!(roar_emoteControl.integer & (1 << E_SIT4)))
+        {
+            trap_SendServerCommand(ent - g_entities, va("print \"This emote is not allowed on this server.\n\""));
+            return;
+        }
+        if (ent->client->ps.groundEntityNum == ENTITYNUM_NONE)
+        {
+            return;
+        }
+        if (ent->client->ps.duelInProgress)
+        {
+            trap_SendServerCommand(ent - g_entities, va("print \"^7Emotes not allowed in duel!\n\""));
+            return;
+        }
+        else {
+            if (ent->client->ps.legsAnim == BOTH_SIT5)
+            {
+                ent->client->ps.forceDodgeAnim = 0;
+                ent->client->ps.forceHandExtendTime = 0;
+                //ent->client->emote_freeze = 0;
+                ent->client->ps.saberCanThrow = qtrue;
+            }
+            else
+            {
+                ent->client->ps.forceHandExtend = HANDEXTEND_TAUNT;
+                ent->client->ps.forceDodgeAnim = BOTH_SIT5;
+                ent->client->ps.forceHandExtendTime = level.time + Q3_INFINITE;
+                ent->client->ps.saberCanThrow = qfalse;
+                //ent->client->emote_freeze = 1;
+                StandardSetBodyAnim(ent, BOTH_SIT5, SETANIM_FLAG_OVERRIDE | SETANIM_FLAG_HOLD | SETANIM_FLAG_HOLDLESS);
+                ent->client->ps.saberMove = LS_NONE;
+                ent->client->ps.saberBlocked = 0;
+                ent->client->ps.saberBlocking = 0;
+            }
+        }
+    }
+    else if ((Q_stricmp(cmd, "sit7") == 0) || (Q_stricmp(cmd, "amsit7") == 0))
+    {
+        if (!(roar_emoteControl.integer & (1 << E_SIT4)))
+        {
+            trap_SendServerCommand(ent - g_entities, va("print \"This emote is not allowed on this server.\n\""));
+            return;
+        }
+        if (ent->client->ps.groundEntityNum == ENTITYNUM_NONE)
+        {
+            return;
+        }
+        if (ent->client->ps.duelInProgress)
+        {
+            trap_SendServerCommand(ent - g_entities, va("print \"^7Emotes not allowed in duel!\n\""));
+            return;
+        }
+        else {
+            if (ent->client->ps.legsAnim == BOTH_SIT4)
+            {
+                ent->client->ps.forceDodgeAnim = 0;
+                ent->client->ps.forceHandExtendTime = 0;
+                //ent->client->emote_freeze = 0;
+                ent->client->ps.saberCanThrow = qtrue;
+            }
+            else
+            {
+                ent->client->ps.forceHandExtend = HANDEXTEND_TAUNT;
+                ent->client->ps.forceDodgeAnim = BOTH_SIT4;
+                ent->client->ps.forceHandExtendTime = level.time + Q3_INFINITE;
+                ent->client->ps.saberCanThrow = qfalse;
+                //ent->client->emote_freeze = 1;
+                StandardSetBodyAnim(ent, BOTH_SIT4, SETANIM_FLAG_OVERRIDE | SETANIM_FLAG_HOLD | SETANIM_FLAG_HOLDLESS);
+                ent->client->ps.saberMove = LS_NONE;
+                ent->client->ps.saberBlocked = 0;
+                ent->client->ps.saberBlocking = 0;
+            }
+        }
+    }
+    else if ((Q_stricmp(cmd, "kneel1") == 0) || (Q_stricmp(cmd, "amkneel1") == 0))
+    {
+        if (!(roar_emoteControl.integer & (1 << E_KNEEL1)))
+        {
+            trap_SendServerCommand(ent - g_entities, va("print \"This emote is not allowed on this server.\n\""));
+            return;
+        }
+        if (ent->client->ps.groundEntityNum == ENTITYNUM_NONE)
+        {
+            return;
+        }
+        if (ent->client->ps.duelInProgress)
+        {
+            trap_SendServerCommand(ent - g_entities, va("print \"^7Emotes not allowed in duel!\n\""));
+            return;
+        }
+        else {
+            if (ent->client->ps.legsAnim == BOTH_KNEES2)
+            {
+                ent->client->ps.forceDodgeAnim = 0;
+                ent->client->ps.forceHandExtendTime = 0;
+                //ent->client->emote_freeze = 0;
+                ent->client->ps.saberCanThrow = qtrue;
+            }
+            else
+            {
+                ent->client->ps.forceHandExtend = HANDEXTEND_TAUNT;
+                ent->client->ps.forceDodgeAnim = BOTH_KNEES2;
+                ent->client->ps.forceHandExtendTime = level.time + Q3_INFINITE;
+                ent->client->ps.saberCanThrow = qfalse;
+                //ent->client->emote_freeze = 1;
+                StandardSetBodyAnim(ent, BOTH_KNEES2, SETANIM_FLAG_OVERRIDE | SETANIM_FLAG_HOLD | SETANIM_FLAG_HOLDLESS);
+                ent->client->ps.saberMove = LS_NONE;
+                ent->client->ps.saberBlocked = 0;
+                ent->client->ps.saberBlocking = 0;
+            }
+        }
+    }
+    else if ((Q_stricmp(cmd, "kneel2") == 0) || (Q_stricmp(cmd, "amkneel2") == 0))
+    {
+        if (!(roar_emoteControl.integer & (1 << E_KNEEL2)))
+        {
+            trap_SendServerCommand(ent - g_entities, va("print \"This emote is not allowed on this server.\n\""));
+            return;
+        }
+        if (ent->client->ps.groundEntityNum == ENTITYNUM_NONE)
+        {
+            return;
+        }
+        if (ent->client->ps.duelInProgress)
+        {
+            trap_SendServerCommand(ent - g_entities, va("print \"^7Emotes not allowed in duel!\n\""));
+            return;
+        }
+        else {
+            if (ent->client->ps.legsAnim == BOTH_ROSH_PAIN)
+            {
+                ent->client->ps.forceDodgeAnim = 0;
+                ent->client->ps.forceHandExtendTime = 0;
+                //ent->client->emote_freeze = 0;
+                ent->client->ps.saberCanThrow = qtrue;
+            }
+            else
+            {
+                ent->client->ps.forceHandExtend = HANDEXTEND_TAUNT;
+                ent->client->ps.forceDodgeAnim = BOTH_ROSH_PAIN;
+                ent->client->ps.forceHandExtendTime = level.time + Q3_INFINITE;
+                ent->client->ps.saberCanThrow = qfalse;
+                //ent->client->emote_freeze = 1;
+                StandardSetBodyAnim(ent, BOTH_ROSH_PAIN, SETANIM_FLAG_OVERRIDE | SETANIM_FLAG_HOLD | SETANIM_FLAG_HOLDLESS);
+                ent->client->ps.saberMove = LS_NONE;
+                ent->client->ps.saberBlocked = 0;
+                ent->client->ps.saberBlocking = 0;
+            }
+        }
+    }
+    else if ((Q_stricmp(cmd, "kneel3") == 0) || (Q_stricmp(cmd, "amkneel3") == 0))
+    {
+        if (!(roar_emoteControl.integer & (1 << E_KNEEL3)))
+        {
+            trap_SendServerCommand(ent - g_entities, va("print \"This emote is not allowed on this server.\n\""));
+            return;
+        }
+        if (ent->client->ps.groundEntityNum == ENTITYNUM_NONE)
+        {
+            return;
+        }
+        if (ent->client->ps.duelInProgress)
+        {
+            trap_SendServerCommand(ent - g_entities, va("print \"^7Emotes not allowed in duel!\n\""));
+            return;
+        }
+        else {
+            if (ent->client->ps.legsAnim == BOTH_CROUCH3)
+            {
+                ent->client->ps.forceDodgeAnim = 0;
+                ent->client->ps.forceHandExtendTime = 0;
+                //ent->client->emote_freeze = 0;
+                ent->client->ps.saberCanThrow = qtrue;
+            }
+            else
+            {
+                ent->client->ps.forceHandExtend = HANDEXTEND_TAUNT;
+                ent->client->ps.forceDodgeAnim = BOTH_CROUCH3;
+                ent->client->ps.forceHandExtendTime = level.time + Q3_INFINITE;
+                ent->client->ps.saberCanThrow = qfalse;
+                //ent->client->emote_freeze = 1;
+                StandardSetBodyAnim(ent, BOTH_CROUCH3, SETANIM_FLAG_OVERRIDE | SETANIM_FLAG_HOLD | SETANIM_FLAG_HOLDLESS);
+                ent->client->ps.saberMove = LS_NONE;
+                ent->client->ps.saberBlocked = 0;
+                ent->client->ps.saberBlocking = 0;
+            }
+        }
+    }
+	//EMOTES ENDS HERE
 	//[/CoOpEditor]
 #ifdef _DEBUG
 	else if (Q_stricmp(cmd, "relax") == 0 && CheatsOk( ent ))

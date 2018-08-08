@@ -319,7 +319,9 @@ vmCvar_t	bot_thinklevel;
 // nmckenzie: temporary way to show player healths in duels - some iface gfx in game would be better, of course.
 // DUEL_HEALTH
 vmCvar_t		g_showDuelHealths;
-
+//Emote control
+vmCvar_t		roar_emoteControl;
+//Emote control ends here
 //[CoOp]
 vmCvar_t		ojp_skipcutscenes;
 vmCvar_t		ojp_spmodel;
@@ -741,6 +743,9 @@ static cvarTable_t		gameCvarTable[] = {
 	{ &g_powerDuelStartHealth, "g_powerDuelStartHealth", "150", CVAR_ARCHIVE, 0, qtrue  },
 	{ &g_powerDuelEndHealth, "g_powerDuelEndHealth", "90", CVAR_ARCHIVE, 0, qtrue  },
 
+	//EMOTES CONTROL
+	{ &roar_emoteControl, "cm_emoteControl", "0", CVAR_ARCHIVE, 0 , qtrue },
+	
 	//[AotCAI] - sets the level of think code for AotC Bots
 	{ &bot_thinklevel, "bot_thinklevel", "3", CVAR_ARCHIVE, 0, qtrue  },
 	//[/AotCAI]

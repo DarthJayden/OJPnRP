@@ -2066,6 +2066,8 @@ extern	vmCvar_t	g_austrian;
 extern	vmCvar_t	g_powerDuelStartHealth;
 extern	vmCvar_t	g_powerDuelEndHealth;
 
+//EMOTES CONTROL
+extern  vmCvar_t	roar_emoteControl;
 //[AotCAI]
 extern	vmCvar_t	bot_thinklevel;
 //[/AotCAI]

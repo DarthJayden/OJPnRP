@@ -317,6 +317,7 @@
     <ClCompile Include="g_navnew.c" />
     <ClCompile Include="g_object.c" />
     <ClCompile Include="g_roff.c" />
+    <ClCompile Include="g_roll.c" />
     <ClCompile Include="g_saberbeh.c" />
     <ClCompile Include="g_saga.c" />
     <ClCompile Include="g_session.c" />
@@ -421,6 +422,7 @@
     <ClInclude Include="g_nav.h" />
     <ClInclude Include="g_public.h" />
     <ClInclude Include="g_roff.h" />
+    <ClInclude Include="g_roll.h" />
     <ClInclude Include="g_saberbeh.h" />
     <ClInclude Include="g_team.h" />
     <ClInclude Include="inv.h" />
