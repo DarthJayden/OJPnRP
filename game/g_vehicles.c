@@ -3333,7 +3333,7 @@ void G_VehUpdateShields( gentity_t *targ )
 #endif
 
 // Set the parent entity of this Vehicle NPC.
-GAME_INLINE void SetParent( Vehicle_t *pVeh, bgEntity_t *pParentEntity ) { pVeh->m_pParentEntity = pParentEntity; }
+//GAME_INLINE void SetParent( Vehicle_t *pVeh, bgEntity_t *pParentEntity ) { pVeh->m_pParentEntity = pParentEntity; } Jayden
 
 // Add a pilot to the vehicle.
 GAME_INLINE void SetPilot( Vehicle_t *pVeh, bgEntity_t *pPilot ) { pVeh->m_pPilot = pPilot; }
@@ -3351,7 +3351,7 @@ void G_SetSharedVehicleFunctions( vehicleInfo_t *pVehInfo )
 //	pVehInfo->AnimateVehicle				=		AnimateVehicle;
 //	pVehInfo->AnimateRiders					=		AnimateRiders;
 	pVehInfo->ValidateBoard					=		ValidateBoard;
-	pVehInfo->SetParent						=		SetParent;
+//	pVehInfo->SetParent						=		SetParent; Jayden
 	pVehInfo->SetPilot						=		SetPilot;
 	pVehInfo->AddPassenger					=		AddPassenger;
 	pVehInfo->Animate						=		Animate;
