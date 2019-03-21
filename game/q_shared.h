@@ -1376,8 +1376,13 @@ typedef struct {
 #else 
 #ifndef __LCC__
 //pitiful attempt to reduce _ftol2 calls -rww
-static ID_INLINE void SnapVector( float *v )
+static ID_INLINE void SnapVector(float *v) 
 {
+	v[0] = (int)v[0];
+	v[1] = (int)v[1];
+	v[2] = (int)v[2];
+}
+/*{
 	static int i;
 	static float f;
 
@@ -1395,7 +1400,7 @@ static ID_INLINE void SnapVector( float *v )
 	__asm	fld		f;
 	__asm	fistp	i;
 	*v = i;
-}
+}*/
 #else
 #define	SnapVector(v) {v[0]=((int)(v[0]));v[1]=((int)(v[1]));v[2]=((int)(v[2]));}
 #endif // __LCC__

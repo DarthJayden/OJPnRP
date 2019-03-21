@@ -3,7 +3,6 @@
 // q_math.c -- stateless support routines that are included in each code module
 #include "q_shared.h"
 
-
 vec3_t	vec3_origin = {0,0,0};
 vec3_t	axisDefault[3] = { { 1, 0, 0 }, { 0, 1, 0 }, { 0, 0, 1 } };
 
@@ -874,8 +873,8 @@ int BoxOnPlaneSide (vec3_t emins, vec3_t emaxs, struct cplane_s *p)
 }
 #else
 #pragma warning( disable: 4035 )
-
-__declspec( naked ) int BoxOnPlaneSide (vec3_t emins, vec3_t emaxs, struct cplane_s *p)
+/*
+__declspec(naked) int BoxOnPlaneSide(vec3_t emins, vec3_t emaxs, struct cplane_s *p)
 {
 	static int bops_initialized;
 	static int Ljmptab[8];
@@ -883,230 +882,255 @@ __declspec( naked ) int BoxOnPlaneSide (vec3_t emins, vec3_t emaxs, struct cplan
 	__asm {
 
 		push ebx
-			
+
 		cmp bops_initialized, 1
 		je  initialized
 		mov bops_initialized, 1
-		
-		mov Ljmptab[0*4], offset Lcase0
-		mov Ljmptab[1*4], offset Lcase1
-		mov Ljmptab[2*4], offset Lcase2
-		mov Ljmptab[3*4], offset Lcase3
-		mov Ljmptab[4*4], offset Lcase4
-		mov Ljmptab[5*4], offset Lcase5
-		mov Ljmptab[6*4], offset Lcase6
-		mov Ljmptab[7*4], offset Lcase7
-			
-initialized:
 
-		mov edx,dword ptr[4+12+esp]
-		mov ecx,dword ptr[4+4+esp]
-		xor eax,eax
-		mov ebx,dword ptr[4+8+esp]
-		mov al,byte ptr[17+edx]
-		cmp al,8
-		jge Lerror
-		fld dword ptr[0+edx]
-		fld st(0)
-		jmp dword ptr[Ljmptab+eax*4]
-Lcase0:
+		mov Ljmptab[0 * 4], offset Lcase0
+		mov Ljmptab[1 * 4], offset Lcase1
+		mov Ljmptab[2 * 4], offset Lcase2
+		mov Ljmptab[3 * 4], offset Lcase3
+		mov Ljmptab[4 * 4], offset Lcase4
+		mov Ljmptab[5 * 4], offset Lcase5
+		mov Ljmptab[6 * 4], offset Lcase6
+		mov Ljmptab[7 * 4], offset Lcase7
+
+		initialized :
+
+		mov edx, dword ptr[4 + 12 + esp]
+			mov ecx, dword ptr[4 + 4 + esp]
+			xor eax, eax
+			mov ebx, dword ptr[4 + 8 + esp]
+			mov al, byte ptr[17 + edx]
+			cmp al, 8
+			jge Lerror
+			fld dword ptr[0 + edx]
+			fld st(0)
+			jmp dword ptr[Ljmptab + eax * 4]
+			Lcase0:
 		fmul dword ptr[ebx]
-		fld dword ptr[0+4+edx]
-		fxch st(2)
+			fld dword ptr[0 + 4 + edx]
+			fxch st(2)
+			fmul dword ptr[ecx]
+			fxch st(2)
+			fld st(0)
+			fmul dword ptr[4 + ebx]
+			fld dword ptr[0 + 8 + edx]
+			fxch st(2)
+			fmul dword ptr[4 + ecx]
+			fxch st(2)
+			fld st(0)
+			fmul dword ptr[8 + ebx]
+			fxch st(5)
+			faddp st(3), st(0)
+			fmul dword ptr[8 + ecx]
+			fxch st(1)
+			faddp st(3), st(0)
+			fxch st(3)
+			faddp st(2), st(0)
+			jmp LSetSides
+			Lcase1 :
 		fmul dword ptr[ecx]
-		fxch st(2)
-		fld st(0)
-		fmul dword ptr[4+ebx]
-		fld dword ptr[0+8+edx]
-		fxch st(2)
-		fmul dword ptr[4+ecx]
-		fxch st(2)
-		fld st(0)
-		fmul dword ptr[8+ebx]
-		fxch st(5)
-		faddp st(3),st(0)
-		fmul dword ptr[8+ecx]
-		fxch st(1)
-		faddp st(3),st(0)
-		fxch st(3)
-		faddp st(2),st(0)
-		jmp LSetSides
-Lcase1:
-		fmul dword ptr[ecx]
-		fld dword ptr[0+4+edx]
-		fxch st(2)
+			fld dword ptr[0 + 4 + edx]
+			fxch st(2)
+			fmul dword ptr[ebx]
+			fxch st(2)
+			fld st(0)
+			fmul dword ptr[4 + ebx]
+			fld dword ptr[0 + 8 + edx]
+			fxch st(2)
+			fmul dword ptr[4 + ecx]
+			fxch st(2)
+			fld st(0)
+			fmul dword ptr[8 + ebx]
+			fxch st(5)
+			faddp st(3), st(0)
+			fmul dword ptr[8 + ecx]
+			fxch st(1)
+			faddp st(3), st(0)
+			fxch st(3)
+			faddp st(2), st(0)
+			jmp LSetSides
+			Lcase2 :
 		fmul dword ptr[ebx]
-		fxch st(2)
-		fld st(0)
-		fmul dword ptr[4+ebx]
-		fld dword ptr[0+8+edx]
-		fxch st(2)
-		fmul dword ptr[4+ecx]
-		fxch st(2)
-		fld st(0)
-		fmul dword ptr[8+ebx]
-		fxch st(5)
-		faddp st(3),st(0)
-		fmul dword ptr[8+ecx]
-		fxch st(1)
-		faddp st(3),st(0)
-		fxch st(3)
-		faddp st(2),st(0)
-		jmp LSetSides
-Lcase2:
-		fmul dword ptr[ebx]
-		fld dword ptr[0+4+edx]
-		fxch st(2)
+			fld dword ptr[0 + 4 + edx]
+			fxch st(2)
+			fmul dword ptr[ecx]
+			fxch st(2)
+			fld st(0)
+			fmul dword ptr[4 + ecx]
+			fld dword ptr[0 + 8 + edx]
+			fxch st(2)
+			fmul dword ptr[4 + ebx]
+			fxch st(2)
+			fld st(0)
+			fmul dword ptr[8 + ebx]
+			fxch st(5)
+			faddp st(3), st(0)
+			fmul dword ptr[8 + ecx]
+			fxch st(1)
+			faddp st(3), st(0)
+			fxch st(3)
+			faddp st(2), st(0)
+			jmp LSetSides
+			Lcase3 :
 		fmul dword ptr[ecx]
-		fxch st(2)
-		fld st(0)
-		fmul dword ptr[4+ecx]
-		fld dword ptr[0+8+edx]
-		fxch st(2)
-		fmul dword ptr[4+ebx]
-		fxch st(2)
-		fld st(0)
-		fmul dword ptr[8+ebx]
-		fxch st(5)
-		faddp st(3),st(0)
-		fmul dword ptr[8+ecx]
-		fxch st(1)
-		faddp st(3),st(0)
-		fxch st(3)
-		faddp st(2),st(0)
-		jmp LSetSides
-Lcase3:
-		fmul dword ptr[ecx]
-		fld dword ptr[0+4+edx]
-		fxch st(2)
+			fld dword ptr[0 + 4 + edx]
+			fxch st(2)
+			fmul dword ptr[ebx]
+			fxch st(2)
+			fld st(0)
+			fmul dword ptr[4 + ecx]
+			fld dword ptr[0 + 8 + edx]
+			fxch st(2)
+			fmul dword ptr[4 + ebx]
+			fxch st(2)
+			fld st(0)
+			fmul dword ptr[8 + ebx]
+			fxch st(5)
+			faddp st(3), st(0)
+			fmul dword ptr[8 + ecx]
+			fxch st(1)
+			faddp st(3), st(0)
+			fxch st(3)
+			faddp st(2), st(0)
+			jmp LSetSides
+			Lcase4 :
 		fmul dword ptr[ebx]
-		fxch st(2)
-		fld st(0)
-		fmul dword ptr[4+ecx]
-		fld dword ptr[0+8+edx]
-		fxch st(2)
-		fmul dword ptr[4+ebx]
-		fxch st(2)
-		fld st(0)
-		fmul dword ptr[8+ebx]
-		fxch st(5)
-		faddp st(3),st(0)
-		fmul dword ptr[8+ecx]
-		fxch st(1)
-		faddp st(3),st(0)
-		fxch st(3)
-		faddp st(2),st(0)
-		jmp LSetSides
-Lcase4:
-		fmul dword ptr[ebx]
-		fld dword ptr[0+4+edx]
-		fxch st(2)
+			fld dword ptr[0 + 4 + edx]
+			fxch st(2)
+			fmul dword ptr[ecx]
+			fxch st(2)
+			fld st(0)
+			fmul dword ptr[4 + ebx]
+			fld dword ptr[0 + 8 + edx]
+			fxch st(2)
+			fmul dword ptr[4 + ecx]
+			fxch st(2)
+			fld st(0)
+			fmul dword ptr[8 + ecx]
+			fxch st(5)
+			faddp st(3), st(0)
+			fmul dword ptr[8 + ebx]
+			fxch st(1)
+			faddp st(3), st(0)
+			fxch st(3)
+			faddp st(2), st(0)
+			jmp LSetSides
+			Lcase5 :
 		fmul dword ptr[ecx]
-		fxch st(2)
-		fld st(0)
-		fmul dword ptr[4+ebx]
-		fld dword ptr[0+8+edx]
-		fxch st(2)
-		fmul dword ptr[4+ecx]
-		fxch st(2)
-		fld st(0)
-		fmul dword ptr[8+ecx]
-		fxch st(5)
-		faddp st(3),st(0)
-		fmul dword ptr[8+ebx]
-		fxch st(1)
-		faddp st(3),st(0)
-		fxch st(3)
-		faddp st(2),st(0)
-		jmp LSetSides
-Lcase5:
-		fmul dword ptr[ecx]
-		fld dword ptr[0+4+edx]
-		fxch st(2)
+			fld dword ptr[0 + 4 + edx]
+			fxch st(2)
+			fmul dword ptr[ebx]
+			fxch st(2)
+			fld st(0)
+			fmul dword ptr[4 + ebx]
+			fld dword ptr[0 + 8 + edx]
+			fxch st(2)
+			fmul dword ptr[4 + ecx]
+			fxch st(2)
+			fld st(0)
+			fmul dword ptr[8 + ecx]
+			fxch st(5)
+			faddp st(3), st(0)
+			fmul dword ptr[8 + ebx]
+			fxch st(1)
+			faddp st(3), st(0)
+			fxch st(3)
+			faddp st(2), st(0)
+			jmp LSetSides
+			Lcase6 :
 		fmul dword ptr[ebx]
-		fxch st(2)
-		fld st(0)
-		fmul dword ptr[4+ebx]
-		fld dword ptr[0+8+edx]
-		fxch st(2)
-		fmul dword ptr[4+ecx]
-		fxch st(2)
-		fld st(0)
-		fmul dword ptr[8+ecx]
-		fxch st(5)
-		faddp st(3),st(0)
-		fmul dword ptr[8+ebx]
-		fxch st(1)
-		faddp st(3),st(0)
-		fxch st(3)
-		faddp st(2),st(0)
-		jmp LSetSides
-Lcase6:
-		fmul dword ptr[ebx]
-		fld dword ptr[0+4+edx]
-		fxch st(2)
+			fld dword ptr[0 + 4 + edx]
+			fxch st(2)
+			fmul dword ptr[ecx]
+			fxch st(2)
+			fld st(0)
+			fmul dword ptr[4 + ecx]
+			fld dword ptr[0 + 8 + edx]
+			fxch st(2)
+			fmul dword ptr[4 + ebx]
+			fxch st(2)
+			fld st(0)
+			fmul dword ptr[8 + ecx]
+			fxch st(5)
+			faddp st(3), st(0)
+			fmul dword ptr[8 + ebx]
+			fxch st(1)
+			faddp st(3), st(0)
+			fxch st(3)
+			faddp st(2), st(0)
+			jmp LSetSides
+			Lcase7 :
 		fmul dword ptr[ecx]
-		fxch st(2)
-		fld st(0)
-		fmul dword ptr[4+ecx]
-		fld dword ptr[0+8+edx]
-		fxch st(2)
-		fmul dword ptr[4+ebx]
-		fxch st(2)
-		fld st(0)
-		fmul dword ptr[8+ecx]
-		fxch st(5)
-		faddp st(3),st(0)
-		fmul dword ptr[8+ebx]
-		fxch st(1)
-		faddp st(3),st(0)
-		fxch st(3)
-		faddp st(2),st(0)
-		jmp LSetSides
-Lcase7:
-		fmul dword ptr[ecx]
-		fld dword ptr[0+4+edx]
-		fxch st(2)
-		fmul dword ptr[ebx]
-		fxch st(2)
-		fld st(0)
-		fmul dword ptr[4+ecx]
-		fld dword ptr[0+8+edx]
-		fxch st(2)
-		fmul dword ptr[4+ebx]
-		fxch st(2)
-		fld st(0)
-		fmul dword ptr[8+ecx]
-		fxch st(5)
-		faddp st(3),st(0)
-		fmul dword ptr[8+ebx]
-		fxch st(1)
-		faddp st(3),st(0)
-		fxch st(3)
-		faddp st(2),st(0)
-LSetSides:
-		faddp st(2),st(0)
-		fcomp dword ptr[12+edx]
-		xor ecx,ecx
-		fnstsw ax
-		fcomp dword ptr[12+edx]
-		and ah,1
-		xor ah,1
-		add cl,ah
-		fnstsw ax
-		and ah,1
-		add ah,ah
-		add cl,ah
-		pop ebx
-		mov eax,ecx
-		ret
-Lerror:
+			fld dword ptr[0 + 4 + edx]
+			fxch st(2)
+			fmul dword ptr[ebx]
+			fxch st(2)
+			fld st(0)
+			fmul dword ptr[4 + ecx]
+			fld dword ptr[0 + 8 + edx]
+			fxch st(2)
+			fmul dword ptr[4 + ebx]
+			fxch st(2)
+			fld st(0)
+			fmul dword ptr[8 + ecx]
+			fxch st(5)
+			faddp st(3), st(0)
+			fmul dword ptr[8 + ebx]
+			fxch st(1)
+			faddp st(3), st(0)
+			fxch st(3)
+			faddp st(2), st(0)
+			LSetSides:
+		faddp st(2), st(0)
+			fcomp dword ptr[12 + edx]
+			xor ecx, ecx
+			fnstsw ax
+			fcomp dword ptr[12 + edx]
+			and ah, 1
+			xor ah, 1
+			add cl, ah
+			fnstsw ax
+			and ah, 1
+			add ah, ah
+			add cl, ah
+			pop ebx
+			mov eax, ecx
+			ret
+			Lerror :
 		int 3
 	}
+} 
+*/
+//Джайден: перевод с ассемблера на си
+
+int BoxOnPlaneSide(vec3_t emins, vec3_t emaxs, struct cplane_s *p)
+{
+	int ret = 0;
+	float dotMins =
+		p->normal[0] * ((p->signbits & 1) ? emins[0] : emaxs[0]) +
+		p->normal[1] * ((p->signbits & 2) ? emins[1] : emaxs[1]) +
+		p->normal[2] * ((p->signbits & 4) ? emins[2] : emaxs[2]);
+	float dotMaxs =
+		p->normal[0] * ((p->signbits & 1) ? emaxs[0] : emins[0]) +
+		p->normal[1] * ((p->signbits & 2) ? emaxs[1] : emins[1]) +
+		p->normal[2] * ((p->signbits & 4) ? emaxs[2] : emins[2]);
+
+	if (dotMins >= p->dist) {
+		ret += 1;
+	}
+	if (dotMaxs < p->dist) {
+		ret += 2;
+	}
+	return ret;
 }
+// /Джайден, перевод с ассемблера на си
 #pragma warning( default: 4035 )
 
 #endif
+
 #endif
 
 /*
