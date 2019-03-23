@@ -6,7 +6,8 @@
 
 //[SVN]
 //rearraigned repository to make it easier to initially compile.
-#include "../../ojpenhanced/ui/jamp/menudef.h"
+//#include "../../ojpenhanced/ui/jamp/menudef.h"
+#include "../ojpenhanced/ui/jamp/menudef.h"
 //#include "../../ui/menudef.h"			// for the voice chats
 //[/SVN]
 
@@ -4710,7 +4711,7 @@ void ClientCommand( int clientNum ) {
             return;
         }
         else {
-     //       G_Sound(ent, CHAN_AUTO, G_SoundIndex("sound/chars/humanmerc1/misc/escaping1")); Джайден: к чёрту жуткий мужицкий голос.
+     //       G_Sound(ent, CHAN_AUTO, G_SoundIndex("sound/chars/humanmerc1/misc/escaping1")); Г„Г¦Г Г©Г¤ГҐГ­: ГЄ Г·ВёГ°ГІГі Г¦ГіГІГЄГЁГ© Г¬ГіГ¦ГЁГ¶ГЄГЁГ© ГЈГ®Г«Г®Г±.
             StandardSetBodyAnim(ent, BOTH_SONICPAIN_HOLD, SETANIM_FLAG_OVERRIDE | SETANIM_FLAG_HOLD | SETANIM_FLAG_HOLDLESS);
         }
     }
