@@ -43,7 +43,8 @@ OFILES += w_force.o w_saber.o
 
 
 $(TARGET): $(OFILES)
-	$(CC) -shared -o $(TARGET) $(OFILES) -lm
+	#$(CC) -shared -o $(TARGET) $(OFILES) -lm
+	$(CC) -shared -m32 -o $(TARGET) $(OFILES) -lm
 
 .c.o:
 	$(CC) $(CFLAGS) -c $*.c -o $*.o
