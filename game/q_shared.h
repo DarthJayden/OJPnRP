@@ -146,7 +146,7 @@ float	FloatSwap (const float *f);
 #endif
 #endif
 
-#define ID_INLINE __inline 
+#define ID_INLINE
 
 static ID_INLINE short BigShort( short l) { return ShortSwap(l); }
 #define LittleShort
@@ -248,9 +248,9 @@ static inline float LittleFloat (const float l) { return FloatSwap(&l); }
 #define	MAC_STATIC // bk: FIXME
 
 #if defined(_WIN32) && !defined(__GNUC__)
-#define ID_INLINE inline 
+#define ID_INLINE 
 #elif !defined(_WIN32)
-#define ID_INLINE inline 
+#define ID_INLINE
 #endif
 
 #ifdef __i386__

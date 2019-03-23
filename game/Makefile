@@ -40,10 +40,10 @@ OFILES += NPC_behavior.o NPC_combat.o NPC_goal.o NPC_misc.o NPC_move.o NPC_react
 OFILES += q_math.o q_shared.o
 OFILES += tri_coll_test.o
 OFILES += w_force.o w_saber.o
+OFILES += g_roll.o
 
 
 $(TARGET): $(OFILES)
-	#$(CC) -shared -o $(TARGET) $(OFILES) -lm
 	$(CC) -shared -m32 -o $(TARGET) $(OFILES) -lm
 
 .c.o:

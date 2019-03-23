@@ -8,11 +8,7 @@
 #include "bg_vehicles.h"
 #include "g_public.h"
 
-#ifndef __LCC__
-#define GAME_INLINE ID_INLINE
-#else
-#define GAME_INLINE //none
-#endif
+#define GAME_INLINE 
 
 typedef struct gentity_s gentity_t;
 typedef struct gclient_s gclient_t;

@@ -3333,16 +3333,16 @@ void G_VehUpdateShields( gentity_t *targ )
 #endif
 
 // Set the parent entity of this Vehicle NPC.
-//GAME_INLINE void SetParent( Vehicle_t *pVeh, bgEntity_t *pParentEntity ) { pVeh->m_pParentEntity = pParentEntity; } Jayden
+/*GAME_INLINE*/ void SetParent( Vehicle_t *pVeh, bgEntity_t *pParentEntity ) { pVeh->m_pParentEntity = pParentEntity; } 
 
 // Add a pilot to the vehicle.
-/*GAME_INLINE */void SetPilot( Vehicle_t *pVeh, bgEntity_t *pPilot ) { pVeh->m_pPilot = pPilot; }
+/*GAME_INLINE*/ void SetPilot( Vehicle_t *pVeh, bgEntity_t *pPilot ) { pVeh->m_pPilot = pPilot; }
 
 // Add a passenger to the vehicle (false if we're full).
-/*GAME_INLINE*/ bool AddPassenger( Vehicle_t *pVeh ) { return false; }
+/*GAME_INLINE*/ qboolean AddPassenger( Vehicle_t *pVeh ) { return qfalse; }
 
 // Whether this vehicle is currently inhabited (by anyone) or not.
-/*GAME_INLINE*/ bool Inhabited( Vehicle_t *pVeh ) { return ( pVeh->m_pPilot || pVeh->m_iNumPassengers ) ? true : false; }
+/*GAME_INLINE*/ qboolean Inhabited( Vehicle_t *pVeh ) { return ( pVeh->m_pPilot || pVeh->m_iNumPassengers ) ? qtrue : qfalse; } 
 
 
 // Setup the shared functions (one's that all vehicles would generally use).
@@ -3351,7 +3351,7 @@ void G_SetSharedVehicleFunctions( vehicleInfo_t *pVehInfo )
 //	pVehInfo->AnimateVehicle				=		AnimateVehicle;
 //	pVehInfo->AnimateRiders					=		AnimateRiders;
 	pVehInfo->ValidateBoard					=		ValidateBoard;
-//	pVehInfo->SetParent						=		SetParent; Jayden
+	pVehInfo->SetParent						=		SetParent; 
 	pVehInfo->SetPilot						=		SetPilot;
 	pVehInfo->AddPassenger					=		AddPassenger;
 	pVehInfo->Animate						=		Animate;
@@ -3369,7 +3369,7 @@ void G_SetSharedVehicleFunctions( vehicleInfo_t *pVehInfo )
 	pVehInfo->AttachRiders					=		AttachRiders;
 	pVehInfo->Ghost							=		Ghost;
 	pVehInfo->UnGhost						=		UnGhost;
-	pVehInfo->Inhabited						=		Inhabited;
+	pVehInfo->Inhabited						=		Inhabited; 
 }
 
 #ifdef _JK2MP
