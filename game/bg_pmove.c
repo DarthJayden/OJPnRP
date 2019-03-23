@@ -298,7 +298,7 @@ qboolean BG_KnockDownable(playerState_t *ps)
 #endif
 
 //hacky assumption check, assume any client non-humanoid is a rocket trooper
-qboolean PM_INLINE PM_IsRocketTrooper(void)
+qboolean /*PM_INLINE*/ PM_IsRocketTrooper(void)
 {
 	/*
 	if (pm->ps->clientNum < MAX_CLIENTS &&
@@ -313,7 +313,7 @@ qboolean PM_INLINE PM_IsRocketTrooper(void)
 }
 
 //[DualPistols]
-animNumber_t PM_INLINE PM_GetWeaponReadyAnim(void)
+animNumber_t /*PM_INLINE*/ PM_GetWeaponReadyAnim(void)
 {
 	if (pm->ps->eFlags & EF_DUAL_WEAPONS)
 		return WeaponReadyAnim2[pm->ps->weapon];
