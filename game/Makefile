@@ -23,8 +23,8 @@ TARGET =  jampgamei386.so
 CFLAGS += -g3 -D_DEBUG
 CFLAGS += -I./
 CFLAGS += -D_JK2 -DQAGAME
-#CFLAGS += -fPIC -Wall -masm=intel -m32# -fno-strict-aliasing -march=i586
-CFLAGS += -fPIC -Wall -masm=intel -m32# -fno-strict-aliasing -march=native
+CFLAGS += -fPIC -Wall -masm=intel -m32# -fno-strict-aliasing -march=i586
+#CFLAGS += -fPIC -Wall -masm=intel -m32# -fno-strict-aliasing -march=native
 
 OFILES += ai_aotc.o ai_hybrid.o ai_main.o ai_tab.o ai_util.o ai_wpnav.o
 OFILES += aotctc_holocron.o
