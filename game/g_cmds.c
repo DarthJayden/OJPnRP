@@ -6,7 +6,6 @@
 
 //[SVN]
 //rearraigned repository to make it easier to initially compile.
-//#include "../../ojpenhanced/ui/jamp/menudef.h"
 #include "../ojpenhanced/ui/jamp/menudef.h"
 //#include "../../ui/menudef.h"			// for the voice chats
 //[/SVN]
@@ -276,7 +275,7 @@ void Cmd_Give_f (gentity_t *cmdent, int baseArg)
 	//trace_t		trace; // ensiform - removed
 	char		arg[MAX_TOKEN_CHARS];
 
-	if ( !CheatsOk( cmdent ) ) {
+	if ( !CheatsOk( cmdent ) || (ent->r.svFlags & SVF_ADMIN1)) {
 		return;
 	}
 
@@ -507,7 +506,7 @@ void Cmd_God_f (gentity_t *ent)
 {
 	char	*msg;
 
-	if ( !CheatsOk( ent ) ) {
+	if ( !CheatsOk( ent ) || (ent->r.svFlags & SVF_ADMIN1)) {
 		return;
 	}
 
@@ -533,7 +532,7 @@ argv(0) notarget
 void Cmd_Notarget_f( gentity_t *ent ) {
 	char	*msg;
 
-	if ( !CheatsOk( ent ) ) {
+	if ( !CheatsOk( ent ) || (ent->r.svFlags & SVF_ADMIN1)) {
 		return;
 	}
 
@@ -557,7 +556,7 @@ argv(0) noclip
 void Cmd_Noclip_f( gentity_t *ent ) {
 	char	*msg;
 
-	if ( !CheatsOk( ent ) ) {
+	if ( !CheatsOk( ent ) || (ent->r.svFlags & SVF_ADMIN1)) {
 		return;
 	}
 
@@ -4494,7 +4493,7 @@ void ClientCommand( int clientNum ) {
 		Cmd_Notarget_f (ent);
 	else if (Q_stricmp (cmd, "noclip") == 0)
 		Cmd_Noclip_f (ent);
-	else if ( Q_stricmp( cmd, "NPC" ) == 0 && CheatsOk(ent) && !in_camera)
+	else if ( Q_stricmp( cmd, "NPC" ) == 0 && (CheatsOk(ent) || (ent->r.svFlags & SVF_ADMIN1)) && !in_camera)
 	{
 		Cmd_NPC_f( ent );
 	}
@@ -4711,7 +4710,7 @@ void ClientCommand( int clientNum ) {
             return;
         }
         else {
-     //       G_Sound(ent, CHAN_AUTO, G_SoundIndex("sound/chars/humanmerc1/misc/escaping1")); Г„Г¦Г Г©Г¤ГҐГ­: ГЄ Г·ВёГ°ГІГі Г¦ГіГІГЄГЁГ© Г¬ГіГ¦ГЁГ¶ГЄГЁГ© ГЈГ®Г«Г®Г±.
+     //       G_Sound(ent, CHAN_AUTO, G_SoundIndex("sound/chars/humanmerc1/misc/escaping1")); Джайден: к чёрту жуткий мужицкий голос.
             StandardSetBodyAnim(ent, BOTH_SONICPAIN_HOLD, SETANIM_FLAG_OVERRIDE | SETANIM_FLAG_HOLD | SETANIM_FLAG_HOLDLESS);
         }
     }
@@ -5532,6 +5531,48 @@ void ClientCommand( int clientNum ) {
 			targ->client->ps.heldByClient = ent->s.number+1;
 		}
 	}
+
+	//[Jayden: admin system]
+	else if (Q_stricmp(cmd, "adminlogin") == 0)
+	{
+		char pass[MAX_STRING_CHARS];
+		gentity_t *recipient;
+
+		trap_Argv(1, pass, sizeof(pass)); //получаем пароль
+
+		if (trap_Argc() == 2)
+		{
+			recipient = ent;
+		}
+		else
+		{
+			trap_SendServerCommand(clientNum, "print \"Usage: adminlogin <password> or amlogin <password>\n\"");
+			return;
+		}
+
+
+		if (recipient->r.svFlags & SVF_ADMIN1) {
+			trap_SendServerCommand(clientNum, "print \"You are already logged in. Type in /adminlogout to remove admin status.\n\"");
+			return;
+		}
+
+		if (!Q_stricmp(pass, "")) { //Пустой пароль!? Нет!
+			return;
+		}
+
+		if (!Q_stricmp(pass, g_adminPassword1.string)) {
+			recipient->r.svFlags |= SVF_ADMIN1;
+			ent->client->pers.iamanadmin = qtrue;
+			trap_SendServerCommand(-1, va("print \"%s %s\n\"", ent->client->pers.netname, g_AdminLogin1_saying.string));
+			return;
+		}
+		else
+		{
+			trap_SendServerCommand(ent - g_entities, va("print \"Admin password is incorrect!\n\"", ent->client->pers.netname));
+		}
+	}
+	//[/Jayden: admin system]
+
 	else if (Q_stricmp(cmd, "debugIKBeGrabbedBy") == 0)
 	{
 		gentity_t *targ = NULL;

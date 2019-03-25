@@ -379,6 +379,12 @@ vmCvar_t		ojp_truebalance;//[TrueBalance]
 
 vmCvar_t	ojp_modelscaleEnabled;//[ModelScale]
 
+//[Jayden: admin system]
+vmCvar_t	g_adminPassword1; //пароль от админки 1-го уровня.
+vmCvar_t	g_AdminLogin1_saying; //Сообщение при заходе в админку 1 уровня.
+
+// [/Jayden: admin system]
+
 // bk001129 - made static to avoid aliasing
 static cvarTable_t		gameCvarTable[] = {
 	// don't override the cheat state set by the system
