@@ -275,7 +275,7 @@ void Cmd_Give_f (gentity_t *cmdent, int baseArg)
 	//trace_t		trace; // ensiform - removed
 	char		arg[MAX_TOKEN_CHARS];
 
-	if ( !CheatsOk( cmdent ) || (ent->r.svFlags & SVF_ADMIN1)) {
+	if ( !CheatsOk( cmdent ) && !(ent->r.svFlags & SVF_ADMIN1)) {
 		return;
 	}
 
@@ -506,7 +506,7 @@ void Cmd_God_f (gentity_t *ent)
 {
 	char	*msg;
 
-	if ( !CheatsOk( ent ) || (ent->r.svFlags & SVF_ADMIN1)) {
+	if ( !CheatsOk( ent ) && !(ent->r.svFlags & SVF_ADMIN1)) {
 		return;
 	}
 
@@ -532,7 +532,7 @@ argv(0) notarget
 void Cmd_Notarget_f( gentity_t *ent ) {
 	char	*msg;
 
-	if ( !CheatsOk( ent ) || (ent->r.svFlags & SVF_ADMIN1)) {
+	if ( !CheatsOk( ent ) && !(ent->r.svFlags & SVF_ADMIN1)) {
 		return;
 	}
 
@@ -556,7 +556,7 @@ argv(0) noclip
 void Cmd_Noclip_f( gentity_t *ent ) {
 	char	*msg;
 
-	if ( !CheatsOk( ent ) || (ent->r.svFlags & SVF_ADMIN1)) {
+	if ( !CheatsOk( ent ) && !(ent->r.svFlags & SVF_ADMIN1)) {
 		return;
 	}
 
@@ -5101,7 +5101,7 @@ void ClientCommand( int clientNum ) {
             }
         }
     }
-    else if ((Q_stricmp(cmd, "kneel3") == 0) || (Q_stricmp(cmd, "amkneel3") == 0))
+  else if ((Q_stricmp(cmd, "kneel3") == 0) || (Q_stricmp(cmd, "amkneel3") == 0))
     {
         if (!(roar_emoteControl.integer & (1 << E_KNEEL3)))
         {
@@ -5532,46 +5532,7 @@ void ClientCommand( int clientNum ) {
 		}
 	}
 
-	//[Jayden: admin system]
-	else if (Q_stricmp(cmd, "adminlogin") == 0)
-	{
-		char pass[MAX_STRING_CHARS];
-		gentity_t *recipient;
-
-		trap_Argv(1, pass, sizeof(pass)); //получаем пароль
-
-		if (trap_Argc() == 2)
-		{
-			recipient = ent;
-		}
-		else
-		{
-			trap_SendServerCommand(clientNum, "print \"Usage: adminlogin <password> or amlogin <password>\n\"");
-			return;
-		}
-
-
-		if (recipient->r.svFlags & SVF_ADMIN1) {
-			trap_SendServerCommand(clientNum, "print \"You are already logged in. Type in /adminlogout to remove admin status.\n\"");
-			return;
-		}
-
-		if (!Q_stricmp(pass, "")) { //Пустой пароль!? Нет!
-			return;
-		}
-
-		if (!Q_stricmp(pass, g_adminPassword1.string)) {
-			recipient->r.svFlags |= SVF_ADMIN1;
-			ent->client->pers.iamanadmin = qtrue;
-			trap_SendServerCommand(-1, va("print \"%s %s\n\"", ent->client->pers.netname, g_AdminLogin1_saying.string));
-			return;
-		}
-		else
-		{
-			trap_SendServerCommand(ent - g_entities, va("print \"Admin password is incorrect!\n\"", ent->client->pers.netname));
-		}
-	}
-	//[/Jayden: admin system]
+	
 
 	else if (Q_stricmp(cmd, "debugIKBeGrabbedBy") == 0)
 	{
@@ -5744,6 +5705,46 @@ void ClientCommand( int clientNum ) {
 			}
 		}
 	}
+	//[Jayden: admin system]
+	else if ((Q_stricmp(cmd, "adminlogin") == 0) || (Q_stricmp(cmd, "amlogin") == 0))
+	{
+		char pass[MAX_STRING_CHARS];
+		gentity_t *recipient;
+
+		trap_Argv(1, pass, sizeof(pass)); //получаем пароль
+
+		if (trap_Argc() == 2)
+		{
+			recipient = ent;
+		}
+		else
+		{
+			trap_SendServerCommand(clientNum, "print \"Usage: adminlogin <password> or amlogin <password>\n\"");
+			return;
+		}
+
+
+		if (recipient->r.svFlags & SVF_ADMIN1) {
+			trap_SendServerCommand(clientNum, "print \"You are already logged in. Type in /adminlogout to remove admin status.\n\"");
+			return;
+		}
+
+		if (!Q_stricmp(pass, "")) { //Пустой пароль!? Нет!
+			return;
+		}
+
+		if (!Q_stricmp(pass, g_adminPassword1.string)) {
+			recipient->r.svFlags |= SVF_ADMIN1;
+			ent->client->pers.iamanadmin = qtrue;
+			trap_SendServerCommand(-1, va("print \"%s %s\n\"", ent->client->pers.netname, g_AdminLogin1_saying.string));
+			return;
+		}
+		else
+		{
+			trap_SendServerCommand(ent - g_entities, va("print \"Admin password is incorrect!\n\"", ent->client->pers.netname));
+		}
+	}
+	//[/Jayden: admin system]
 #endif
 #ifdef VM_MEMALLOC_DEBUG
 	else if (Q_stricmp(cmd, "debugTestAlloc") == 0)

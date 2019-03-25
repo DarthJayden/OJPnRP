@@ -593,6 +593,11 @@ typedef struct {
 	int			teamVoteCount;		// to prevent people from constantly calling votes
 	qboolean	teamInfo;			// send team overlay updates?
 
+	//[Jayden: admin stystem]
+	qboolean	iamanadmin;			//Я админ! 
+
+	//[/Jayden: admin system]
+
 	//[ClientPlugInDetect]
 	//this flag shows weither or not this client is running the right version of OJP on the client side.  
 	//This is used to determine if the visual weapon events can be sent or not.
@@ -2099,6 +2104,11 @@ extern vmCvar_t		ojp_ffaRespawnTimer;
 extern vmCvar_t		ojp_truebalance;//[TrueBalance]
 
 extern vmCvar_t ojp_modelscaleEnabled;//[Modelscale]
+									  
+//[Jayden: admin system]
+extern vmCvar_t	g_adminPassword1; //пароль от админки 1-го уровня.
+extern vmCvar_t	g_AdminLogin1_saying; //Сообщение при заходе в админку 1 уровня.
+//[/Jayden: admin system]
 
 #include "../namespace_begin.h"
 

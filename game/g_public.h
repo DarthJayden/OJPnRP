@@ -47,6 +47,10 @@
 #define SVF_ANIMATING			0x80000000	// an animating map entity
 //[/CoOp]
 
+//[Jayden: admin system]
+#define SVF_ADMIN1				0x00010000	// админские привилегии 1 уровня
+//[/Jayden: admin system]
+
 //rww - ghoul2 trace flags
 #define G2TRFLAG_DOGHOULTRACE	0x00000001 //do the ghoul2 trace
 #define G2TRFLAG_HITCORPSES		0x00000002 //will try g2 collision on the ent even if it's EF_DEAD

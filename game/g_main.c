@@ -822,6 +822,11 @@ static cvarTable_t		gameCvarTable[] = {
 	{ &ojp_truebalance, "ojp_trueBalance","1",CVAR_ARCHIVE|CVAR_LATCH,0,qtrue},  //[TrueBalance]
 
 	{ &ojp_modelscaleEnabled, "ojp_modelscaleenabled","1", CVAR_ARCHIVE ,0,qtrue},//[ModelScale]
+	//[Jayden: admin system]
+	{ &g_adminPassword1, "g_adminPassword1","1", CVAR_ARCHIVE ,0,qtrue },
+	{ &g_AdminLogin1_saying, "g_AdminLogin1_saying","1", CVAR_ARCHIVE ,0,qtrue },
+	//[/Jayden:admin system]
+
 };
 
 // bk001129 - made static to avoid aliasing
