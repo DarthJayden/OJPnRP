@@ -1,0 +1,50 @@
+
+Loading dll file ui.
+ERROR: ui/jamp/player2.menu, line 450: unknown menu item keyword cvarint
+ERROR: ui/jamp/player2.menu, line 450: unknown menu item keyword
+ui_char_color_red
+ERROR: ui/jamp/player2.menu, line 450: unknown menu item keyword 50
+ERROR: ui/jamp/player2.menu, line 450: unknown menu item keyword 0
+ERROR: ui/jamp/player2.menu, line 450: unknown menu item keyword 255
+ERROR: ui/jamp/player2.menu, line 479: unknown menu item keyword cvarint
+ERROR: ui/jamp/player2.menu, line 479: unknown menu item keyword
+ui_char_color_green
+ERROR: ui/jamp/player2.menu, line 479: unknown menu item keyword 50
+ERROR: ui/jamp/player2.menu, line 479: unknown menu item keyword 0
+ERROR: ui/jamp/player2.menu, line 479: unknown menu item keyword 255
+ERROR: ui/jamp/player2.menu, line 508: unknown menu item keyword cvarint
+ERROR: ui/jamp/player2.menu, line 508: unknown menu item keyword
+ui_char_color_blue
+ERROR: ui/jamp/player2.menu, line 508: unknown menu item keyword 50
+ERROR: ui/jamp/player2.menu, line 508: unknown menu item keyword 0
+ERROR: ui/jamp/player2.menu, line 508: unknown menu item keyword 255
+ERROR: ui/jamp/saber.menu, line 906: unknown menu item keyword cvarint
+ERROR: ui/jamp/saber.menu, line 906: unknown menu item keyword ui_sab1_r
+ERROR: ui/jamp/saber.menu, line 906: unknown menu item keyword 255
+ERROR: ui/jamp/saber.menu, line 906: unknown menu item keyword 1
+ERROR: ui/jamp/saber.menu, line 906: unknown menu item keyword 255
+ERROR: ui/jamp/saber.menu, line 949: unknown menu item keyword cvarint
+ERROR: ui/jamp/saber.menu, line 949: unknown menu item keyword ui_sab1_g
+ERROR: ui/jamp/saber.menu, line 949: unknown menu item keyword 255
+ERROR: ui/jamp/saber.menu, line 949: unknown menu item keyword 1
+ERROR: ui/jamp/saber.menu, line 949: unknown menu item keyword 255
+ERROR: ui/jamp/saber.menu, line 992: unknown menu item keyword cvarint
+ERROR: ui/jamp/saber.menu, line 992: unknown menu item keyword ui_sab1_b
+ERROR: ui/jamp/saber.menu, line 992: unknown menu item keyword 255
+ERROR: ui/jamp/saber.menu, line 992: unknown menu item keyword 1
+ERROR: ui/jamp/saber.menu, line 992: unknown menu item keyword 255
+ERROR: ui/jamp/saber.menu, line 1035: unknown menu item keyword cvarint
+ERROR: ui/jamp/saber.menu, line 1035: unknown menu item keyword ui_sab2_r
+ERROR: ui/jamp/saber.menu, line 1035: unknown menu item keyword 255
+ERROR: ui/jamp/saber.menu, line 1035: unknown menu item keyword 1
+ERROR: ui/jamp/saber.menu, line 1035: unknown menu item keyword 255
+ERROR: ui/jamp/saber.menu, line 1082: unknown menu item keyword cvarint
+ERROR: ui/jamp/saber.menu, line 1082: unknown menu item keyword ui_sab2_g
+ERROR: ui/jamp/saber.menu, line 1082: unknown menu item keyword 255
+ERROR: ui/jamp/saber.menu, line 1082: unknown menu item keyword 1
+ERROR: ui/jamp/saber.menu, line 1082: unknown menu item keyword 255
+ERROR: ui/jamp/saber.menu, line 1129: unknown menu item keyword cvarint
+ERROR: ui/jamp/saber.menu, line 1129: unknown menu item keyword ui_sab2_b
+ERROR: ui/jamp/saber.menu, line 1129: unknown menu item keyword 255
+ERROR: ui/jamp/saber.menu, line 1129: unknown menu item keyword 1
+ERROR: ui/jamp/saber.menu, line 1129: unknown menu item keyword 255
