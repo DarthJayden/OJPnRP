@@ -19,6 +19,7 @@ typedef struct gclient_s gclient_t;
 extern int gPainMOD;
 extern int gPainHitLoc;
 extern vec3_t gPainPoint;
+extern int G_ClientNumberFromArg(char* name);
 
 //==================================================================
 
@@ -91,6 +92,7 @@ extern vec3_t gPainPoint;
 
 #define	MAX_G_SHARED_BUFFER_SIZE		8192
 extern char gSharedBuffer[MAX_G_SHARED_BUFFER_SIZE];
+
 
 // movers are things like doors, plats, buttons, etc
 typedef enum {
@@ -2104,10 +2106,13 @@ extern vmCvar_t		ojp_ffaRespawnTimer;
 extern vmCvar_t		ojp_truebalance;//[TrueBalance]
 
 extern vmCvar_t ojp_modelscaleEnabled;//[Modelscale]
+
+extern vmCvar_t ojp_allowClientTele;
 									  
 //[Jayden: admin system]
 extern vmCvar_t	g_adminPassword1; //пароль от админки 1-го уровня.
 extern vmCvar_t	g_AdminLogin1_saying; //Сообщение при заходе в админку 1 уровня.
+extern vmCvar_t	g_adminControl1;
 //[/Jayden: admin system]
 
 #include "../namespace_begin.h"

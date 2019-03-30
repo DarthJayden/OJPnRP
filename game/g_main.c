@@ -379,9 +379,12 @@ vmCvar_t		ojp_truebalance;//[TrueBalance]
 
 vmCvar_t	ojp_modelscaleEnabled;//[ModelScale]
 
+vmCvar_t	ojp_allowClientTele; //allow non-admins to teleport
+
 //[Jayden: admin system]
 vmCvar_t	g_adminPassword1; //пароль от админки 1-го уровня.
 vmCvar_t	g_AdminLogin1_saying; //Сообщение при заходе в админку 1 уровня.
+vmCvar_t	g_adminControl1; //Права первой админки. Бит.
 
 // [/Jayden: admin system]
 
@@ -822,9 +825,12 @@ static cvarTable_t		gameCvarTable[] = {
 	{ &ojp_truebalance, "ojp_trueBalance","1",CVAR_ARCHIVE|CVAR_LATCH,0,qtrue},  //[TrueBalance]
 
 	{ &ojp_modelscaleEnabled, "ojp_modelscaleenabled","1", CVAR_ARCHIVE ,0,qtrue},//[ModelScale]
+	{ &ojp_allowClientTele, "ojp_allowClientTele","0", CVAR_ARCHIVE ,0,qtrue },
 	//[Jayden: admin system]
 	{ &g_adminPassword1, "g_adminPassword1","1", CVAR_ARCHIVE ,0,qtrue },
 	{ &g_AdminLogin1_saying, "g_AdminLogin1_saying","1", CVAR_ARCHIVE ,0,qtrue },
+	{ &g_adminControl1, "g_adminControl1","-1", CVAR_ARCHIVE ,0,qtrue },
+	
 	//[/Jayden:admin system]
 
 };

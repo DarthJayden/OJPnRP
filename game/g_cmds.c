@@ -3,6 +3,7 @@
 #include "g_local.h"
 #include "bg_saga.h"
 #include "g_roll.h"
+#include "g_admin.h"
 
 //[SVN]
 //rearraigned repository to make it easier to initially compile.
@@ -34,6 +35,7 @@ void Cmd_TeamVote_f( gentity_t *ent );
 //[HolocronFiles]
 extern vmCvar_t bot_wp_edit;
 //[/HolocronFiles]
+
 
 /*
 ==================
@@ -2165,9 +2167,12 @@ void G_Say( gentity_t *ent, gentity_t *target, int mode, const char *chatText ) 
 			color = COLOR_RED;
 			distance = DIST_SAY_SHOUT;
 		}
-		else if (!Q_stricmpn("/me", chatText, 3) || !Q_stricmpn("@", chatText, 1)) {
+		else if (!Q_stricmpn("/me", chatText, 3) || !Q_stricmpn("@", chatText, 1) || !Q_stricmpn("*", chatText, 1)) {
 			if (!Q_stricmpn("/me", chatText, 3)) {
 				chatMod = (char*)chatText + 4;
+			}
+			if (!Q_stricmpn("*", chatText, 1)) {
+				chatMod = (char*)chatText + 1;
 			}
 			else {
 				chatMod = (char*)chatText + 1;
@@ -2182,7 +2187,7 @@ void G_Say( gentity_t *ent, gentity_t *target, int mode, const char *chatText ) 
 			G_LogPrintf("Roll Action: %s %s\n", ent->client->pers.netname, chatMod);
 			Com_sprintf(name, sizeof(name), "%s%c%c"EC" ", ent->client->pers.netname, Q_COLOR_ESCAPE, COLOR_WHITE);
 			color = COLOR_YELLOW;
-			distance = DIST_SAY_SHOUT;
+			distance = DIST_SAY_SPEAK;
 		}
 		else if (!Q_stricmpn("/low", chatText, 4) || !Q_stricmpn(".", chatText, 1)) {
 			if (!Q_stricmpn("/low", chatText, 4)) {
@@ -2196,15 +2201,41 @@ void G_Say( gentity_t *ent, gentity_t *target, int mode, const char *chatText ) 
 			color = COLOR_WHITE;
 			distance = DIST_SAY_LOW;
 		}
-		else if (!Q_stricmpn("/comm", chatText, 5) || !Q_stricmpn("#", chatText, 1)) {
-			if (!Q_stricmpn("/comm", chatText, 5)) {
-				chatMod = (char*)chatText + 6;
+		else if (!Q_stricmpn("/GM", chatText, 3) || !Q_stricmpn("#", chatText, 1)) {
+			if (!ent->client->pers.iamanadmin)
+			{
+				trap_SendServerCommand(ent - g_entities, va("print \"^2You are not a Game Master\n\""));
+				return;
+			}
+			if (!Q_stricmpn("/GM", chatText, 3)) {
+				chatMod = (char*)chatText + 4;
 			}
 			else {
 				chatMod = (char*)chatText + 1;
 			}
-			G_LogPrintf("Comm (Comm) %s: %s\n", ent->client->pers.netname, chatMod);
-			Com_sprintf(name, sizeof(name), "%s%c%c"EC" says (comm): ", ent->client->pers.netname, Q_COLOR_ESCAPE, COLOR_WHITE);
+			G_LogPrintf("GM %s: %s\n", ent->client->pers.netname, chatMod);
+			//Com_sprintf(name, sizeof(name), "%s%c%c"EC" says (comm): ", ent->client->pers.netname, Q_COLOR_ESCAPE, COLOR_WHITE);
+			Com_sprintf(name, sizeof(name), "");
+			color = COLOR_CYAN;
+			distance = DIST_SAY_SPEAK;
+		}
+		else if (!Q_stricmpn("/global", chatText, 7) || !Q_stricmpn("&", chatText, 1) || !Q_stricmpn("/gl", chatText, 3)) {
+			if (!ent->client->pers.iamanadmin)
+			{
+				trap_SendServerCommand(ent - g_entities, va("print \"^2You are not a Game Master\n\""));
+				return;
+			}
+			if (!Q_stricmpn("/global", chatText, 7)) {
+				chatMod = (char*)chatText + 8;
+			}
+			if (!Q_stricmpn("/gl", chatText, 3)) {
+				chatMod = (char*)chatText + 4;
+			}
+			else {
+				chatMod = (char*)chatText + 1;
+			}
+			G_LogPrintf("global %s: %s\n", ent->client->pers.netname, chatMod);
+			Com_sprintf(name, sizeof(name), "");
 			color = COLOR_CYAN;
 			distance = 0;
 		}
@@ -2259,7 +2290,7 @@ void G_Say( gentity_t *ent, gentity_t *target, int mode, const char *chatText ) 
 		break;
 	}
 
-	Q_strncpyz( text, chatText, sizeof(text) );
+	Q_strncpyz( text, chatMod, sizeof(text) );
 
 	if ( target ) {
 		G_SayTo( ent, target, mode, color, name, text, locMsg );
@@ -2516,22 +2547,22 @@ SanitizeString2
 Rich's revised version of SanitizeString
 ==================
 */
-void SanitizeString2( char *in, char *out )
+void SanitizeString2(char *in, char *out)
 {
 	int i = 0;
 	int r = 0;
 
 	while (in[i])
 	{
-		if (i >= MAX_NAME_LENGTH-1)
+		if (i >= MAX_NAME_LENGTH - 1)
 		{ //the ui truncates the name here..
 			break;
 		}
 
 		if (in[i] == '^')
 		{
-			if (in[i+1] >= 48 && //'0'
-				in[i+1] <= 57) //'9'
+			if (in[i + 1] >= 48 && //'0'
+				in[i + 1] <= 57) //'9'
 			{ //only skip it if there's a number after it for the color
 				i += 2;
 				continue;
@@ -2555,7 +2586,68 @@ void SanitizeString2( char *in, char *out )
 	}
 	out[r] = 0;
 }
+int G_ClientNumberFromStrippedSubstring(const char* name)
+{
+	char		s2[MAX_STRING_CHARS];
+	char		n2[MAX_STRING_CHARS];
+	int			i, match = -1;
+	gclient_t	*cl;
 
+	// check for a name match
+	SanitizeString2((char*)name, s2);
+
+	for (i = 0; i < level.numConnectedClients; i++)
+	{
+		cl = &level.clients[level.sortedClients[i]];
+		SanitizeString2(cl->pers.netname, n2);
+		if (strstr(n2, s2))
+		{
+			if (match != -1)
+			{ //found more than one match
+				return -2;
+			}
+			match = level.sortedClients[i];
+		}
+	}
+
+	return match;
+}
+
+int G_ClientNumberFromArg(char* name)
+{
+	int client_id = 0;
+	char *cp;
+
+	cp = name;
+	while (*cp)
+	{
+		if (*cp >= '0' && *cp <= '9') cp++;
+		else
+		{
+			client_id = -1; //mark as alphanumeric
+			break;
+		}
+	}
+
+	if (client_id == 0)
+	{ // arg is assumed to be client number
+		client_id = atoi(name);
+	}
+
+	else
+	{ // arg is client name
+	  //client_id = G_ClientNumberFromName( name );
+	  /*if ( client_id == -1 )
+	  {
+	  client_id = G_ClientNumberFromStrippedName( name );
+	  }*/
+		if (client_id == -1)
+		{
+			client_id = G_ClientNumberFromStrippedSubstring(name);
+		}
+	}
+	return client_id;
+}
 /*
 ==================
 G_ClientNumberFromStrippedName
@@ -4202,6 +4294,7 @@ qboolean TryGrapple(gentity_t *ent)
 	return qfalse;
 }
 
+
 //EMOTE BITRATES HAVE ARRIVED!!!!
 typedef enum
 {
@@ -4641,6 +4734,349 @@ void ClientCommand( int clientNum ) {
 	}
 
 	//EMOTES BEGIN HERE
+	else if ((Q_stricmp(cmd, "wait1") == 0) || (Q_stricmp(cmd, "amwait1") == 0))
+	{
+		if (!(roar_emoteControl.integer & (1 << E_SIT4)))
+		{
+			trap_SendServerCommand(ent - g_entities, va("print \"This emote is not allowed on this server.\n\""));
+			return;
+		}
+		if (ent->client->ps.groundEntityNum == ENTITYNUM_NONE)
+		{
+			return;
+		}
+		if (ent->client->ps.duelInProgress)
+		{
+			trap_SendServerCommand(ent - g_entities, va("print \"^7Emotes not allowed in duel!\n\""));
+			return;
+		}
+		else {
+			if (ent->client->ps.legsAnim == BOTH_STAND4)
+			{
+				ent->client->ps.forceDodgeAnim = 0;
+				ent->client->ps.forceHandExtendTime = 0;
+				//ent->client->emote_freeze = 0;
+				ent->client->ps.saberCanThrow = qtrue;
+			}
+			else
+			{
+				ent->client->ps.forceHandExtend = HANDEXTEND_TAUNT;
+				ent->client->ps.forceDodgeAnim = BOTH_STAND4;
+				ent->client->ps.forceHandExtendTime = level.time + Q3_INFINITE;
+				ent->client->ps.saberCanThrow = qfalse;
+				//ent->client->emote_freeze = 1;
+				StandardSetBodyAnim(ent, BOTH_STAND4, SETANIM_FLAG_OVERRIDE | SETANIM_FLAG_HOLD | SETANIM_FLAG_HOLDLESS);
+				ent->client->ps.saberMove = LS_NONE;
+				ent->client->ps.saberBlocked = 0;
+				ent->client->ps.saberBlocking = 0;
+			}
+		}
+	}
+	else if ((Q_stricmp(cmd, "wait2") == 0) || (Q_stricmp(cmd, "amwait2") == 0))
+	{
+		if (!(roar_emoteControl.integer & (1 << E_SIT4)))
+		{
+			trap_SendServerCommand(ent - g_entities, va("print \"This emote is not allowed on this server.\n\""));
+			return;
+		}
+		if (ent->client->ps.groundEntityNum == ENTITYNUM_NONE)
+		{
+			return;
+		}
+		if (ent->client->ps.duelInProgress)
+		{
+			trap_SendServerCommand(ent - g_entities, va("print \"^7Emotes not allowed in duel!\n\""));
+			return;
+		}
+		else {
+			if (ent->client->ps.legsAnim == BOTH_STAND10)
+			{
+				ent->client->ps.forceDodgeAnim = 0;
+				ent->client->ps.forceHandExtendTime = 0;
+				//ent->client->emote_freeze = 0;
+				ent->client->ps.saberCanThrow = qtrue;
+			}
+			else
+			{
+				ent->client->ps.forceHandExtend = HANDEXTEND_TAUNT;
+				ent->client->ps.forceDodgeAnim = BOTH_STAND10;
+				ent->client->ps.forceHandExtendTime = level.time + Q3_INFINITE;
+				ent->client->ps.saberCanThrow = qfalse;
+				//ent->client->emote_freeze = 1;
+				StandardSetBodyAnim(ent, BOTH_STAND10, SETANIM_FLAG_OVERRIDE | SETANIM_FLAG_HOLD | SETANIM_FLAG_HOLDLESS);
+				ent->client->ps.saberMove = LS_NONE;
+				ent->client->ps.saberBlocked = 0;
+				ent->client->ps.saberBlocking = 0;
+			}
+		}
+	}
+	else if ((Q_stricmp(cmd, "wait3") == 0) || (Q_stricmp(cmd, "amwait3") == 0))
+	{
+		if (!(roar_emoteControl.integer & (1 << E_SIT4)))
+		{
+			trap_SendServerCommand(ent - g_entities, va("print \"This emote is not allowed on this server.\n\""));
+			return;
+		}
+		if (ent->client->ps.groundEntityNum == ENTITYNUM_NONE)
+		{
+			return;
+		}
+		if (ent->client->ps.duelInProgress)
+		{
+			trap_SendServerCommand(ent - g_entities, va("print \"^7Emotes not allowed in duel!\n\""));
+			return;
+		}
+		else {
+			if (ent->client->ps.legsAnim == BOTH_STAND5TOSTAND8)
+			{
+				ent->client->ps.forceDodgeAnim = 0;
+				ent->client->ps.forceHandExtendTime = 0;
+				//ent->client->emote_freeze = 0;
+				ent->client->ps.saberCanThrow = qtrue;
+			}
+			else
+			{
+				ent->client->ps.forceHandExtend = HANDEXTEND_TAUNT;
+				ent->client->ps.forceDodgeAnim = BOTH_STAND5TOSTAND8;
+				ent->client->ps.forceHandExtendTime = level.time + Q3_INFINITE;
+				ent->client->ps.saberCanThrow = qfalse;
+				//ent->client->emote_freeze = 1;
+				StandardSetBodyAnim(ent, BOTH_STAND5TOSTAND8, SETANIM_FLAG_OVERRIDE | SETANIM_FLAG_HOLD | SETANIM_FLAG_HOLDLESS);
+				ent->client->ps.saberMove = LS_NONE;
+				ent->client->ps.saberBlocked = 0;
+				ent->client->ps.saberBlocking = 0;
+			}
+		}
+	}
+	else if ((Q_stricmp(cmd, "die1") == 0) || (Q_stricmp(cmd, "amdie1") == 0))
+	{
+		if (!(roar_emoteControl.integer & (1 << E_SIT4)))
+		{
+			trap_SendServerCommand(ent - g_entities, va("print \"This emote is not allowed on this server.\n\""));
+			return;
+		}
+		if (ent->client->ps.groundEntityNum == ENTITYNUM_NONE)
+		{
+			return;
+		}
+		if (ent->client->ps.duelInProgress)
+		{
+			trap_SendServerCommand(ent - g_entities, va("print \"^7Emotes not allowed in duel!\n\""));
+			return;
+		}
+		else {
+			if (ent->client->ps.legsAnim == BOTH_DEATH1)
+			{
+				ent->client->ps.forceDodgeAnim = 0;
+				ent->client->ps.forceHandExtendTime = 0;
+				//ent->client->emote_freeze = 0;
+				ent->client->ps.saberCanThrow = qtrue;
+			}
+			else
+			{
+				ent->client->ps.forceHandExtend = HANDEXTEND_TAUNT;
+				ent->client->ps.forceDodgeAnim = BOTH_DEATH1;
+				ent->client->ps.forceHandExtendTime = level.time + Q3_INFINITE;
+				ent->client->ps.saberCanThrow = qfalse;
+				//ent->client->emote_freeze = 1;
+				StandardSetBodyAnim(ent, BOTH_DEATH1, SETANIM_FLAG_OVERRIDE | SETANIM_FLAG_HOLD | SETANIM_FLAG_HOLDLESS);
+				ent->client->ps.saberMove = LS_NONE;
+				ent->client->ps.saberBlocked = 0;
+				ent->client->ps.saberBlocking = 0;
+			}
+		}
+	}
+	else if ((Q_stricmp(cmd, "die2") == 0) || (Q_stricmp(cmd, "amdie2") == 0))
+	{
+		if (!(roar_emoteControl.integer & (1 << E_SIT4)))
+		{
+			trap_SendServerCommand(ent - g_entities, va("print \"This emote is not allowed on this server.\n\""));
+			return;
+		}
+		if (ent->client->ps.groundEntityNum == ENTITYNUM_NONE)
+		{
+			return;
+		}
+		if (ent->client->ps.duelInProgress)
+		{
+			trap_SendServerCommand(ent - g_entities, va("print \"^7Emotes not allowed in duel!\n\""));
+			return;
+		}
+		else {
+			if (ent->client->ps.legsAnim == BOTH_DEATH14)
+			{
+				ent->client->ps.forceDodgeAnim = 0;
+				ent->client->ps.forceHandExtendTime = 0;
+				//ent->client->emote_freeze = 0;
+				ent->client->ps.saberCanThrow = qtrue;
+			}
+			else
+			{
+				ent->client->ps.forceHandExtend = HANDEXTEND_TAUNT;
+				ent->client->ps.forceDodgeAnim = BOTH_DEATH14;
+				ent->client->ps.forceHandExtendTime = level.time + Q3_INFINITE;
+				ent->client->ps.saberCanThrow = qfalse;
+				//ent->client->emote_freeze = 1;
+				StandardSetBodyAnim(ent, BOTH_DEATH14, SETANIM_FLAG_OVERRIDE | SETANIM_FLAG_HOLD | SETANIM_FLAG_HOLDLESS);
+				ent->client->ps.saberMove = LS_NONE;
+				ent->client->ps.saberBlocked = 0;
+				ent->client->ps.saberBlocking = 0;
+			}
+		}
+	}
+	else if ((Q_stricmp(cmd, "die3") == 0) || (Q_stricmp(cmd, "amdie3") == 0))
+	{
+		if (!(roar_emoteControl.integer & (1 << E_SIT4)))
+		{
+			trap_SendServerCommand(ent - g_entities, va("print \"This emote is not allowed on this server.\n\""));
+			return;
+		}
+		if (ent->client->ps.groundEntityNum == ENTITYNUM_NONE)
+		{
+			return;
+		}
+		if (ent->client->ps.duelInProgress)
+		{
+			trap_SendServerCommand(ent - g_entities, va("print \"^7Emotes not allowed in duel!\n\""));
+			return;
+		}
+		else {
+			if (ent->client->ps.legsAnim == BOTH_DEATH17)
+			{
+				ent->client->ps.forceDodgeAnim = 0;
+				ent->client->ps.forceHandExtendTime = 0;
+				//ent->client->emote_freeze = 0;
+				ent->client->ps.saberCanThrow = qtrue;
+			}
+			else
+			{
+				ent->client->ps.forceHandExtend = HANDEXTEND_TAUNT;
+				ent->client->ps.forceDodgeAnim = BOTH_DEATH17;
+				ent->client->ps.forceHandExtendTime = level.time + Q3_INFINITE;
+				ent->client->ps.saberCanThrow = qfalse;
+				//ent->client->emote_freeze = 1;
+				StandardSetBodyAnim(ent, BOTH_DEATH17, SETANIM_FLAG_OVERRIDE | SETANIM_FLAG_HOLD | SETANIM_FLAG_HOLDLESS);
+				ent->client->ps.saberMove = LS_NONE;
+				ent->client->ps.saberBlocked = 0;
+				ent->client->ps.saberBlocking = 0;
+			}
+		}
+	}
+	else if ((Q_stricmp(cmd, "die4") == 0) || (Q_stricmp(cmd, "amdie4") == 0))
+	{
+		if (!(roar_emoteControl.integer & (1 << E_SIT4)))
+		{
+			trap_SendServerCommand(ent - g_entities, va("print \"This emote is not allowed on this server.\n\""));
+			return;
+		}
+		if (ent->client->ps.groundEntityNum == ENTITYNUM_NONE)
+		{
+			return;
+		}
+		if (ent->client->ps.duelInProgress)
+		{
+			trap_SendServerCommand(ent - g_entities, va("print \"^7Emotes not allowed in duel!\n\""));
+			return;
+		}
+		else {
+			if (ent->client->ps.legsAnim == BOTH_DEATH4)
+			{
+				ent->client->ps.forceDodgeAnim = 0;
+				ent->client->ps.forceHandExtendTime = 0;
+				//ent->client->emote_freeze = 0;
+				ent->client->ps.saberCanThrow = qtrue;
+			}
+			else
+			{
+				ent->client->ps.forceHandExtend = HANDEXTEND_TAUNT;
+				ent->client->ps.forceDodgeAnim = BOTH_DEATH4;
+				ent->client->ps.forceHandExtendTime = level.time + Q3_INFINITE;
+				ent->client->ps.saberCanThrow = qfalse;
+				//ent->client->emote_freeze = 1;
+				StandardSetBodyAnim(ent, BOTH_DEATH4, SETANIM_FLAG_OVERRIDE | SETANIM_FLAG_HOLD | SETANIM_FLAG_HOLDLESS);
+				ent->client->ps.saberMove = LS_NONE;
+				ent->client->ps.saberBlocked = 0;
+				ent->client->ps.saberBlocking = 0;
+			}
+		}
+	}
+	//main
+	else if ((Q_stricmp(cmd, "choke3") == 0) || (Q_stricmp(cmd, "amchoke3") == 0))
+	{
+		if (!(roar_emoteControl.integer & (1 << E_SIT4)))
+		{
+			trap_SendServerCommand(ent - g_entities, va("print \"This emote is not allowed on this server.\n\""));
+			return;
+		}
+		if (ent->client->ps.groundEntityNum == ENTITYNUM_NONE)
+		{
+			return;
+		}
+		if (ent->client->ps.duelInProgress)
+		{
+			trap_SendServerCommand(ent - g_entities, va("print \"^7Emotes not allowed in duel!\n\""));
+			return;
+		}
+		else {
+			if (ent->client->ps.legsAnim == BOTH_CHOKE3)
+			{
+				ent->client->ps.forceDodgeAnim = 0;
+				ent->client->ps.forceHandExtendTime = 0;
+				//ent->client->emote_freeze = 0;
+				ent->client->ps.saberCanThrow = qtrue;
+			}
+			else
+			{
+				ent->client->ps.forceHandExtend = HANDEXTEND_TAUNT;
+				ent->client->ps.forceDodgeAnim = BOTH_CHOKE3;
+				ent->client->ps.forceHandExtendTime = level.time + Q3_INFINITE;
+				ent->client->ps.saberCanThrow = qfalse;
+				//ent->client->emote_freeze = 1;
+				StandardSetBodyAnim(ent, BOTH_CHOKE3, SETANIM_FLAG_OVERRIDE | SETANIM_FLAG_HOLD | SETANIM_FLAG_HOLDLESS);
+				ent->client->ps.saberMove = LS_NONE;
+				ent->client->ps.saberBlocked = 0;
+				ent->client->ps.saberBlocking = 0;
+			}
+		}
+	}
+	else if ((Q_stricmp(cmd, "choke1") == 0) || (Q_stricmp(cmd, "amchoke1") == 0))
+	{
+		if (!(roar_emoteControl.integer & (1 << E_SIT4)))
+		{
+			trap_SendServerCommand(ent - g_entities, va("print \"This emote is not allowed on this server.\n\""));
+			return;
+		}
+		if (ent->client->ps.groundEntityNum == ENTITYNUM_NONE)
+		{
+			return;
+		}
+		if (ent->client->ps.duelInProgress)
+		{
+			trap_SendServerCommand(ent - g_entities, va("print \"^7Emotes not allowed in duel!\n\""));
+			return;
+		}
+		else {
+			if (ent->client->ps.legsAnim == BOTH_CHOKE1START)
+			{
+				ent->client->ps.forceDodgeAnim = 0;
+				ent->client->ps.forceHandExtendTime = 0;
+				//ent->client->emote_freeze = 0;
+				ent->client->ps.saberCanThrow = qtrue;
+			}
+			else
+			{
+				ent->client->ps.forceHandExtend = HANDEXTEND_TAUNT;
+				ent->client->ps.forceDodgeAnim = BOTH_CHOKE1START;
+				ent->client->ps.forceHandExtendTime = level.time + Q3_INFINITE;
+				ent->client->ps.saberCanThrow = qfalse;
+				//ent->client->emote_freeze = 1;
+				StandardSetBodyAnim(ent, BOTH_CHOKE1START, SETANIM_FLAG_OVERRIDE | SETANIM_FLAG_HOLD | SETANIM_FLAG_HOLDLESS);
+				ent->client->ps.saberMove = LS_NONE;
+				ent->client->ps.saberBlocked = 0;
+				ent->client->ps.saberBlocking = 0;
+			}
+		}
+	}
 	else if ((Q_stricmp(cmd, "point") == 0) || (Q_stricmp(cmd, "ampoint") == 0))
 	{
 		if (!(roar_emoteControl.integer & (1 << E_POINT)))
@@ -4662,7 +5098,7 @@ void ClientCommand( int clientNum ) {
 			{
 				ent->client->ps.forceDodgeAnim = 0;
 				ent->client->ps.forceHandExtendTime = 0;
-				//ent->client->emote_freeze = 0;
+				////ent->client->emote_freeze = 0;
 				ent->client->ps.saberCanThrow = qtrue;
 			}
 			else
@@ -4671,7 +5107,7 @@ void ClientCommand( int clientNum ) {
 				ent->client->ps.forceDodgeAnim = BOTH_FORCELIGHTNING_HOLD;
 				ent->client->ps.forceHandExtendTime = level.time + Q3_INFINITE;
 				ent->client->ps.saberCanThrow = qfalse;
-				//ent->client->emote_freeze = 1;
+				////ent->client->emote_freeze = 1;
 				StandardSetBodyAnim(ent, BOTH_FORCELIGHTNING_HOLD, SETANIM_FLAG_OVERRIDE | SETANIM_FLAG_HOLD | SETANIM_FLAG_HOLDLESS);
 				ent->client->ps.saberMove = LS_NONE;
 				ent->client->ps.saberBlocked = 0;
@@ -4932,7 +5368,7 @@ void ClientCommand( int clientNum ) {
 			{
 				ent->client->ps.forceDodgeAnim = 0;
 				ent->client->ps.forceHandExtendTime = 0;
-				//ent->client->emote_freeze = 0;
+				////ent->client->emote_freeze = 0;
 				ent->client->ps.saberCanThrow = qtrue;
 			}
 			else
@@ -4941,7 +5377,7 @@ void ClientCommand( int clientNum ) {
 				ent->client->ps.forceDodgeAnim = BOTH_SIT1;
 				ent->client->ps.forceHandExtendTime = level.time + Q3_INFINITE;
 				ent->client->ps.saberCanThrow = qfalse;
-				//ent->client->emote_freeze = 1;
+				////ent->client->emote_freeze = 1;
 				StandardSetBodyAnim(ent, BOTH_SIT1, SETANIM_FLAG_OVERRIDE | SETANIM_FLAG_HOLD | SETANIM_FLAG_HOLDLESS);
 				ent->client->ps.saberMove = LS_NONE;
 				ent->client->ps.saberBlocked = 0;
@@ -4970,7 +5406,7 @@ void ClientCommand( int clientNum ) {
 			{
 				ent->client->ps.forceDodgeAnim = 0;
 				ent->client->ps.forceHandExtendTime = 0;
-				//ent->client->emote_freeze = 0;
+				////ent->client->emote_freeze = 0;
 				ent->client->ps.saberCanThrow = qtrue;
 			}
 			else
@@ -4979,7 +5415,7 @@ void ClientCommand( int clientNum ) {
 				ent->client->ps.forceDodgeAnim = BOTH_SIT2;
 				ent->client->ps.forceHandExtendTime = level.time + Q3_INFINITE;
 				ent->client->ps.saberCanThrow = qfalse;
-				//ent->client->emote_freeze = 1;
+				////ent->client->emote_freeze = 1;
 				StandardSetBodyAnim(ent, BOTH_SIT2, SETANIM_FLAG_OVERRIDE | SETANIM_FLAG_HOLD | SETANIM_FLAG_HOLDLESS);
 				ent->client->ps.saberMove = LS_NONE;
 				ent->client->ps.saberBlocked = 0;
@@ -5008,7 +5444,7 @@ void ClientCommand( int clientNum ) {
 			{
 				ent->client->ps.forceDodgeAnim = 0;
 				ent->client->ps.forceHandExtendTime = 0;
-				//ent->client->emote_freeze = 0;
+				////ent->client->emote_freeze = 0;
 				ent->client->ps.saberCanThrow = qtrue;
 			}
 			else
@@ -5017,7 +5453,7 @@ void ClientCommand( int clientNum ) {
 				ent->client->ps.forceDodgeAnim = BOTH_SIT3;
 				ent->client->ps.forceHandExtendTime = level.time + Q3_INFINITE;
 				ent->client->ps.saberCanThrow = qfalse;
-				//ent->client->emote_freeze = 1;
+				////ent->client->emote_freeze = 1;
 				StandardSetBodyAnim(ent, BOTH_SIT3, SETANIM_FLAG_OVERRIDE | SETANIM_FLAG_HOLD | SETANIM_FLAG_HOLDLESS);
 				ent->client->ps.saberMove = LS_NONE;
 				ent->client->ps.saberBlocked = 0;
@@ -5046,7 +5482,7 @@ void ClientCommand( int clientNum ) {
 			{
 				ent->client->ps.forceDodgeAnim = 0;
 				ent->client->ps.forceHandExtendTime = 0;
-				//ent->client->emote_freeze = 0;
+				////ent->client->emote_freeze = 0;
 				ent->client->ps.saberCanThrow = qtrue;
 			}
 			else
@@ -5055,7 +5491,7 @@ void ClientCommand( int clientNum ) {
 				ent->client->ps.forceDodgeAnim = BOTH_SIT4;
 				ent->client->ps.forceHandExtendTime = level.time + Q3_INFINITE;
 				ent->client->ps.saberCanThrow = qfalse;
-				//ent->client->emote_freeze = 1;
+				////ent->client->emote_freeze = 1;
 				StandardSetBodyAnim(ent, BOTH_SIT4, SETANIM_FLAG_OVERRIDE | SETANIM_FLAG_HOLD | SETANIM_FLAG_HOLDLESS);
 				ent->client->ps.saberMove = LS_NONE;
 				ent->client->ps.saberBlocked = 0;
@@ -5084,7 +5520,7 @@ void ClientCommand( int clientNum ) {
             {
                 ent->client->ps.forceDodgeAnim = 0;
                 ent->client->ps.forceHandExtendTime = 0;
-                //ent->client->emote_freeze = 0;
+                ////ent->client->emote_freeze = 0;
                 ent->client->ps.saberCanThrow = qtrue;
             }
             else
@@ -5093,7 +5529,7 @@ void ClientCommand( int clientNum ) {
                 ent->client->ps.forceDodgeAnim = BOTH_SLEEP6START;
                 ent->client->ps.forceHandExtendTime = level.time + Q3_INFINITE;
                 ent->client->ps.saberCanThrow = qfalse;
-                //ent->client->emote_freeze = 1;
+                ////ent->client->emote_freeze = 1;
                 StandardSetBodyAnim(ent, BOTH_SLEEP6START, SETANIM_FLAG_OVERRIDE | SETANIM_FLAG_HOLD | SETANIM_FLAG_HOLDLESS);
                 ent->client->ps.saberMove = LS_NONE;
                 ent->client->ps.saberBlocked = 0;
@@ -5122,7 +5558,7 @@ void ClientCommand( int clientNum ) {
             {
                 ent->client->ps.forceDodgeAnim = 0;
                 ent->client->ps.forceHandExtendTime = 0;
-                //ent->client->emote_freeze = 0;
+                ////ent->client->emote_freeze = 0;
                 ent->client->ps.saberCanThrow = qtrue;
             }
             else
@@ -5131,7 +5567,7 @@ void ClientCommand( int clientNum ) {
                 ent->client->ps.forceDodgeAnim = BOTH_SIT5;
                 ent->client->ps.forceHandExtendTime = level.time + Q3_INFINITE;
                 ent->client->ps.saberCanThrow = qfalse;
-                //ent->client->emote_freeze = 1;
+                ////ent->client->emote_freeze = 1;
                 StandardSetBodyAnim(ent, BOTH_SIT5, SETANIM_FLAG_OVERRIDE | SETANIM_FLAG_HOLD | SETANIM_FLAG_HOLDLESS);
                 ent->client->ps.saberMove = LS_NONE;
                 ent->client->ps.saberBlocked = 0;
@@ -5160,7 +5596,7 @@ void ClientCommand( int clientNum ) {
             {
                 ent->client->ps.forceDodgeAnim = 0;
                 ent->client->ps.forceHandExtendTime = 0;
-                //ent->client->emote_freeze = 0;
+                ////ent->client->emote_freeze = 0;
                 ent->client->ps.saberCanThrow = qtrue;
             }
             else
@@ -5169,7 +5605,7 @@ void ClientCommand( int clientNum ) {
                 ent->client->ps.forceDodgeAnim = BOTH_SIT4;
                 ent->client->ps.forceHandExtendTime = level.time + Q3_INFINITE;
                 ent->client->ps.saberCanThrow = qfalse;
-                //ent->client->emote_freeze = 1;
+                ////ent->client->emote_freeze = 1;
                 StandardSetBodyAnim(ent, BOTH_SIT4, SETANIM_FLAG_OVERRIDE | SETANIM_FLAG_HOLD | SETANIM_FLAG_HOLDLESS);
                 ent->client->ps.saberMove = LS_NONE;
                 ent->client->ps.saberBlocked = 0;
@@ -5198,7 +5634,7 @@ void ClientCommand( int clientNum ) {
             {
                 ent->client->ps.forceDodgeAnim = 0;
                 ent->client->ps.forceHandExtendTime = 0;
-                //ent->client->emote_freeze = 0;
+                ////ent->client->emote_freeze = 0;
                 ent->client->ps.saberCanThrow = qtrue;
             }
             else
@@ -5207,7 +5643,7 @@ void ClientCommand( int clientNum ) {
                 ent->client->ps.forceDodgeAnim = BOTH_KNEES2;
                 ent->client->ps.forceHandExtendTime = level.time + Q3_INFINITE;
                 ent->client->ps.saberCanThrow = qfalse;
-                //ent->client->emote_freeze = 1;
+                ////ent->client->emote_freeze = 1;
                 StandardSetBodyAnim(ent, BOTH_KNEES2, SETANIM_FLAG_OVERRIDE | SETANIM_FLAG_HOLD | SETANIM_FLAG_HOLDLESS);
                 ent->client->ps.saberMove = LS_NONE;
                 ent->client->ps.saberBlocked = 0;
@@ -5236,7 +5672,7 @@ void ClientCommand( int clientNum ) {
             {
                 ent->client->ps.forceDodgeAnim = 0;
                 ent->client->ps.forceHandExtendTime = 0;
-                //ent->client->emote_freeze = 0;
+                ////ent->client->emote_freeze = 0;
                 ent->client->ps.saberCanThrow = qtrue;
             }
             else
@@ -5245,7 +5681,7 @@ void ClientCommand( int clientNum ) {
                 ent->client->ps.forceDodgeAnim = BOTH_ROSH_PAIN;
                 ent->client->ps.forceHandExtendTime = level.time + Q3_INFINITE;
                 ent->client->ps.saberCanThrow = qfalse;
-                //ent->client->emote_freeze = 1;
+                ////ent->client->emote_freeze = 1;
                 StandardSetBodyAnim(ent, BOTH_ROSH_PAIN, SETANIM_FLAG_OVERRIDE | SETANIM_FLAG_HOLD | SETANIM_FLAG_HOLDLESS);
                 ent->client->ps.saberMove = LS_NONE;
                 ent->client->ps.saberBlocked = 0;
@@ -5274,7 +5710,7 @@ void ClientCommand( int clientNum ) {
             {
                 ent->client->ps.forceDodgeAnim = 0;
                 ent->client->ps.forceHandExtendTime = 0;
-                //ent->client->emote_freeze = 0;
+                ////ent->client->emote_freeze = 0;
                 ent->client->ps.saberCanThrow = qtrue;
             }
             else
@@ -5283,7 +5719,7 @@ void ClientCommand( int clientNum ) {
                 ent->client->ps.forceDodgeAnim = BOTH_CROUCH3;
                 ent->client->ps.forceHandExtendTime = level.time + Q3_INFINITE;
                 ent->client->ps.saberCanThrow = qfalse;
-                //ent->client->emote_freeze = 1;
+                ////ent->client->emote_freeze = 1;
                 StandardSetBodyAnim(ent, BOTH_CROUCH3, SETANIM_FLAG_OVERRIDE | SETANIM_FLAG_HOLD | SETANIM_FLAG_HOLDLESS);
                 ent->client->ps.saberMove = LS_NONE;
                 ent->client->ps.saberBlocked = 0;
@@ -5836,23 +6272,23 @@ void ClientCommand( int clientNum ) {
 
 					other->client->ps.heldByClient = 0;
 					other->client->beingThrown = 0;
-					ent->client->doingThrow = 0;
+ent->client->doingThrow = 0;
 
-					ent->client->ps.forceHandExtend = HANDEXTEND_NONE;
-					G_EntitySound( ent, CHAN_VOICE, G_SoundIndex("*pain25.wav") );
+ent->client->ps.forceHandExtend = HANDEXTEND_NONE;
+G_EntitySound(ent, CHAN_VOICE, G_SoundIndex("*pain25.wav"));
 
-					other->client->ps.forceHandExtend = HANDEXTEND_NONE;
-					VectorSubtract(other->client->ps.origin, ent->client->ps.origin, oppDir);
-					VectorNormalize(oppDir);
-					other->client->ps.velocity[0] = oppDir[0]*(strength*40);
-					other->client->ps.velocity[1] = oppDir[1]*(strength*40);
-					other->client->ps.velocity[2] = 150;
+other->client->ps.forceHandExtend = HANDEXTEND_NONE;
+VectorSubtract(other->client->ps.origin, ent->client->ps.origin, oppDir);
+VectorNormalize(oppDir);
+other->client->ps.velocity[0] = oppDir[0] * (strength * 40);
+other->client->ps.velocity[1] = oppDir[1] * (strength * 40);
+other->client->ps.velocity[2] = 150;
 
-					VectorSubtract(ent->client->ps.origin, other->client->ps.origin, oppDir);
-					VectorNormalize(oppDir);
-					ent->client->ps.velocity[0] = oppDir[0]*(strength*40);
-					ent->client->ps.velocity[1] = oppDir[1]*(strength*40);
-					ent->client->ps.velocity[2] = 150;
+VectorSubtract(ent->client->ps.origin, other->client->ps.origin, oppDir);
+VectorNormalize(oppDir);
+ent->client->ps.velocity[0] = oppDir[0] * (strength * 40);
+ent->client->ps.velocity[1] = oppDir[1] * (strength * 40);
+ent->client->ps.velocity[2] = 150;
 				}
 			}
 		}
@@ -5896,78 +6332,17 @@ void ClientCommand( int clientNum ) {
 			trap_SendServerCommand(ent - g_entities, va("print \"Admin password is incorrect!\n\"", ent->client->pers.netname));
 		}
 	}
-	else if ((Q_stricmp(cmd, "teleport") == 0) || (Q_stricmp(cmd, "tele") == 0) || (Q_stricmp(cmd, "admintele") == 0) || (Q_stricmp(cmd, "amtele") == 0))
-	{ // teleport to specific location
-		vec3_t location;
-		vec3_t forward;
-		if (trap_Argc() < 2 || trap_Argc() > 4) {
-			// trap_SendServerCommand(ent - g_entities, va("print \"^3Type in ^5/help teleport ^3if you need help with this command.\n\""));
-			trap_SendServerCommand(ent - g_entities, va("print \"^3Usaage: ^2/tele ID1 ID2^3. Example: tele 3 2\n\^2or\n\""));
-			trap_SendServerCommand(ent - g_entities, va("print \"^3tele (X) (Y) (Z)\n^3type in ^2/origin ^3OR ^2/origin (name) ^3to find out (X) (Y) (Z)\n\""));
+	else if ((Q_stricmp(cmd, "adminlogout") == 0) || (Q_stricmp(cmd, "amlogout") == 0))
+	{
+		if (!ent->r.svFlags & SVF_ADMIN1) {
+			trap_SendServerCommand(clientNum, "print \"^3You are not an administrator!.\n\"");
 			return;
 		}
-		if (trap_Argc() == 3)
-		{
-			int	clId = -1;
-			int   clId2 = -1;
-			char	arg1[MAX_STRING_CHARS];
-			char	arg2[MAX_STRING_CHARS];
-			trap_Argv(1, arg1, sizeof(arg1));
-			//clId = G_ClientNumberFromArg(arg1);
-			clId = atoi(arg1);
-			trap_Argv(2, arg2, sizeof(arg2));
-			// clId2 = G_ClientNumberFromArg(arg2);
-			clId2 = atoi(arg2);
-
-			if (clId == -1 || clId2 == -1)
-			{
-				trap_SendServerCommand(ent - g_entities, va("print \"Can't find client ID for %s\n\"", arg1));
-				return;
-			}
-			if (clId == -2 || clId2 == -2)
-			{
-				trap_SendServerCommand(ent - g_entities, va("print \"Ambiguous client ID for %s\n\"", arg1));
-				return;
-			}
-			if (clId >= 32 || clId2 >= 32)
-			{
-				trap_SendServerCommand(ent - g_entities, va("print \"Ambiguous client ID for %s\n\"", arg1));
-				return;
-			}
-			// either we have the client id or the string did not match
-			if (!g_entities[clId].inuse && !g_entities[clId2].inuse)
-			{ // check to make sure client slot is in use
-				trap_SendServerCommand(ent - g_entities, va("print \"Client %s is not active\n\"", arg1));
-				return;
-			}
-			if (g_entities[clId].health <= 0 && g_entities[clId2].health <= 0)
-			{
-				return;
-			}
-			VectorCopy(g_entities[clId2].client->ps.origin, location);
-			AngleVectors(g_entities[clId2].client->ps.viewangles, forward, NULL, NULL);
-			// set location out in front of your view
-			forward[2] = 0; //no elevation change
-			VectorNormalize(forward);
-			VectorMA(g_entities[clId2].client->ps.origin, 100, forward, location);
-			location[2] += 5; //add just a bit of height???
-							  // teleport them to you
-			TeleportPlayer(&g_entities[clId], location, g_entities[clId2].client->ps.viewangles);
-			//trap_SendServerCommand( -1, va("cp \"%s^7\n%s\n\"", g_entities[clId].client->pers.netname, roar_teleport_saying.string ) );  
-	}
-		if (trap_Argc() == 4)
-		{
-			vec3_t		origin;
-			char		buffer[MAX_TOKEN_CHARS];
-			int			i;
-
-			for (i = 0; i < 3; i++) {
-				trap_Argv(i + 1, buffer, sizeof(buffer));
-				origin[i] = atof(buffer);
-			}
-
-			TeleportPlayer(ent, origin, ent->client->ps.viewangles);
-			//trap_SendServerCommand( -1, va("cp \"%s^7\n%s\n\"", ent->client->pers.netname, roar_teleport_saying.string ) );  
+		else {
+			ent->r.svFlags &= ~SVF_ADMIN1;
+			ent->client->pers.iamanadmin = qfalse;
+			trap_SendServerCommand(-1, va("print \"%s ^3logged out\n\"", ent->client->pers.netname));
+			return;
 		}
 	}
 	else if ((Q_stricmp(cmd, "origin") == 0) || (Q_stricmp(cmd, "amorigin") == 0))
@@ -5979,6 +6354,10 @@ void ClientCommand( int clientNum ) {
 		//client_id = G_ClientNumberFromArg(arg1);
 		client_id = atoi(arg1);
 		//
+		if (trap_Argc() > 1)
+		{
+			trap_SendServerCommand(ent - g_entities, va("print \"^1Incorrect! ^3Usage: /origin ^2or ^3/origin ID\n\""));
+		}
 		if (client_id)
 		{
 			trap_SendServerCommand(ent - g_entities, va("print \"^1X:^7%d, ^1Y:^7%d, ^1Z:^7%d\n\"", (int)g_entities[client_id].client->ps.origin[0], (int)g_entities[client_id].client->ps.origin[1], (int)g_entities[client_id].client->ps.origin[2]));
@@ -5988,6 +6367,64 @@ void ClientCommand( int clientNum ) {
 		{
 			trap_SendServerCommand(ent - g_entities, va("print \"^1X:^7%d, ^1Y:^7%d, ^1Z:^7%d\n\"", (int)ent->client->ps.origin[0], (int)ent->client->ps.origin[1], (int)ent->client->ps.origin[2]));
 		}
+	}
+	else if ((Q_stricmp(cmd, "teleport") == 0) || (Q_stricmp(cmd, "tele") == 0) || (Q_stricmp(cmd, "admintele") == 0) || (Q_stricmp(cmd, "amtele") == 0))
+	{ // teleport to specific location
+		if (!ent->client->pers.iamanadmin)
+		{
+			if (ojp_allowClientTele.integer == 0)
+			{
+				trap_SendServerCommand(ent - g_entities, va("print \"^1You have no rights to use this command\n\""));
+				return;
+			}
+			if (trap_Argc() == 2)
+			{
+				vec3_t location;
+				vec3_t forward;
+				char arg1[MAX_STRING_CHARS];
+				trap_Argv(1, arg1, sizeof(arg1));
+				int clId = G_ClientNumberFromArg(arg1);
+				if (!g_entities[clId].inuse)
+				{ // check to make sure client slot is in use
+					trap_SendServerCommand(ent - g_entities, va("print \"Client %s is not active\n\"", arg1));
+					return;
+				}
+				VectorCopy(g_entities[clId].client->ps.origin, location);
+				AngleVectors(g_entities[clId].client->ps.viewangles, forward, NULL, NULL);
+				forward[2] = 0; //no elevation change
+				VectorNormalize(forward);
+				VectorMA(g_entities[clId].client->ps.origin, 100, forward, location);
+				location[2] += 5; //add just a bit of height???
+
+				TeleportPlayer(ent, location, g_entities[clId].client->ps.viewangles);
+			}
+			if (trap_Argc() == 4)
+			{
+				vec3_t		origin;
+				char		buffer[MAX_TOKEN_CHARS];
+				int			i;
+
+				for (i = 0; i < 3; i++) {
+					trap_Argv(i + 1, buffer, sizeof(buffer));
+					origin[i] = atof(buffer);
+				}
+
+				TeleportPlayer(ent, origin, ent->client->ps.viewangles);
+			}
+			if ((trap_Argc() != 2) && (trap_Argc() != 4))
+			{
+				trap_SendServerCommand(ent - g_entities, va("print \"^3Usaage: ^2/tele target_ID\n^3or\n^2/tele x y z\n^3type ^2/origin ^3to get your location\n\""));
+				return;
+			}
+		}
+		else
+		{
+			AM_Tele(ent);
+		}
+	}
+	else if ((Q_stricmp(cmd, "amtarget") == 0) || (Q_stricmp(cmd, "amnotarget") == 0))
+	{ 
+		AM_Notarget(ent);
 	}
 	//[/Jayden: admin system]
 #endif

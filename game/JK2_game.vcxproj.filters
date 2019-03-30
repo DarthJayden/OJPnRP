@@ -335,6 +335,9 @@
     <ClCompile Include="g_roll.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="g_admin.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ai.h">
@@ -491,6 +494,9 @@
       <Filter>Header Files\ICARUS Headers</Filter>
     </ClInclude>
     <ClInclude Include="g_roll.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="g_admin.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
