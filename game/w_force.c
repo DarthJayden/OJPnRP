@@ -2381,11 +2381,23 @@ qboolean OJP_BlockLightning(gentity_t *attacker, gentity_t *defender, vec3_t imp
 	{
 		//ok, we can do it.  Hold up the saber to block it.
 		defender->client->ps.saberBlocked = BLOCKED_TOP;
+		//Jayden and add saber block efx
+		G_PlayEffectID(G_EffectIndex("saber/saber_block"), defender->client->saber->blade->muzzlePoint, defender->s.angles);
 	}
 	else
 	{//use our hand to block the lightning
 		defender->client->ps.forceHandExtend = HANDEXTEND_FORCE_HOLD;
 		defender->client->ps.forceHandExtendTime = level.time + 500;
+		//Левая рука
+		mdxaBone_t boltMatrix;
+		int bolt = trap_G2API_AddBolt(defender->ghoul2, 0, "l_hand");
+		trap_G2API_GetBoltMatrix(defender->ghoul2, 0, bolt, &boltMatrix, &defender->client->ps.viewangles, &defender->client->ps.origin, level.time, NULL, &defender->modelScale);
+
+		vec3_t start;
+		start[0] = boltMatrix.matrix[0][3];
+		start[1] = boltMatrix.matrix[1][3];
+		start[2] = boltMatrix.matrix[2][3];
+		G_PlayEffectID(G_EffectIndex("saber/saber_block"), start, defender->s.angles);
 	}
 
 	//charge us some DP as well.
@@ -2488,7 +2500,12 @@ void ForceLightningDamage( gentity_t *self, gentity_t *traceEnt, vec3_t dir, vec
 					
 					//[ForceSys]
 					//lightning also blasts the target back.
-					G_Throw(traceEnt, dir, 100);
+					//exept big targets like rancor, mutant rancor and large vehicles
+					if (traceEnt->client->NPC_class != CLASS_RANCOR && traceEnt->client->NPC_class != CLASS_ATST)
+					{
+						G_Throw(traceEnt, dir, 100);
+					}
+
 					if(!WalkCheck(traceEnt) 
 					|| (WalkCheck(traceEnt) && traceEnt->client->ps.saberAttackChainCount >= MISHAPLEVEL_HEAVY) 
 					|| BG_IsUsingHeavyWeap(&traceEnt->client->ps)
@@ -2499,6 +2516,10 @@ void ForceLightningDamage( gentity_t *self, gentity_t *traceEnt, vec3_t dir, vec
 					}
 					//[/ForceSys]
 				}
+			//lse //We blocked lightning. but... for correct effect. Neede? Jayden
+			//
+			//G_Damage(traceEnt, self, self, dir, impactPoint, 0, 0, MOD_FORCE_DARK);
+			//
 				if ( traceEnt->client )
 				{
 					if ( !Q_irand( 0, 2 ) )
@@ -2539,7 +2560,7 @@ void ForceShootLightning( gentity_t *self )
 	AngleVectors( self->client->ps.viewangles, forward, NULL, NULL );
 	VectorNormalize( forward );
 
-	if ( self->client->ps.fd.forcePowerLevel[FP_LIGHTNING] > FORCE_LEVEL_2 )
+if ( self->client->ps.fd.forcePowerLevel[FP_LIGHTNING] > FORCE_LEVEL_2 )
 	{//arc
 		vec3_t	center, mins, maxs, dir, ent_org, size, v;
 		float	radius = FORCE_LIGHTNING_RADIUS, dot, dist;
