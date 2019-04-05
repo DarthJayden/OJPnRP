@@ -152,7 +152,7 @@ const int mindTrickTime[NUM_FORCE_POWER_LEVELS] =
 };
 
 //[DodgeSys]
-#define SK_DP_FORFORCE		.5f	//determines the number of DP points players get for each skill point dedicated to Force Powers.
+#define SK_DP_FORFORCE		1.f	//determines the number of DP points players get for each skill point dedicated to Force Powers.
 #define SK_DP_FORMERC		1/6.0f	//determines the number of DP points get for each skill point dedicated to gunner/merc skills.
 void DetermineDodgeMax(gentity_t *ent)
 {//sets the maximum number of dodge points this player should have.  This is based on their skill point allociation.
@@ -169,7 +169,7 @@ void DetermineDodgeMax(gentity_t *ent)
 	}
 	else if(ent->s.number < MAX_CLIENTS)
 	{//players get a initial DP bonus.
-		dodgeMax = 50;
+		dodgeMax = 20;
 	}
 
 	//force powers
@@ -2503,7 +2503,7 @@ void ForceLightningDamage( gentity_t *self, gentity_t *traceEnt, vec3_t dir, vec
 					//exept big targets like rancor, mutant rancor and large vehicles
 					if (traceEnt->client->NPC_class != CLASS_RANCOR && traceEnt->client->NPC_class != CLASS_ATST)
 					{
-						G_Throw(traceEnt, dir, 100);
+						G_Throw(traceEnt, dir, 50);
 					}
 
 					if(!WalkCheck(traceEnt) 

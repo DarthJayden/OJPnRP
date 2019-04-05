@@ -7681,7 +7681,7 @@ static qboolean PM_DoChargedWeapons( qboolean vehicleRocketLock, bgEntity_t *veh
 #endif
 				if ( pm->cmd.buttons & BUTTON_ALT_ATTACK
 #ifdef QAGAME
-					&& ent->client->skillLevel[SK_PISTOL] == 3)
+					&& ent->client->skillLevel[SK_PISTOL] > 1)
 #else
 )
 #endif
@@ -7795,7 +7795,7 @@ static qboolean PM_DoChargedWeapons( qboolean vehicleRocketLock, bgEntity_t *veh
 	if(1)
 	{
 		gentity_t *ent = &g_entities[pm->ps->clientNum];
-		if(pm->ps->weapon == WP_BRYAR_PISTOL && altFire && ent->client->skillLevel[SK_PISTOL] != 3)
+		if(pm->ps->weapon == WP_BRYAR_PISTOL && altFire && ent->client->skillLevel[SK_PISTOL] < 2)
 			return qfalse;
 	}
 #endif
@@ -8861,7 +8861,7 @@ static void PM_Weapon( void )
 	if(ent->reloadTime > 0)
 		return;
 	//[PistolLevel3]
-	if(ent->client->skillLevel[SK_PISTOL] != 3 && (pm->cmd.buttons & BUTTON_ALT_ATTACK)
+	if(ent->client->skillLevel[SK_PISTOL] < 2 && (pm->cmd.buttons & BUTTON_ALT_ATTACK)
 		&& pm->ps->weapon == WP_BRYAR_PISTOL)
 		return;
 	//[/PistolLevel3]

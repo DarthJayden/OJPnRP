@@ -123,7 +123,7 @@ static  vec3_t  muzzle2;//[DualPistols]
 //---------
 #define FLECHETTE_SHOTS				5
 #define FLECHETTE_SPREAD			6.5f
-#define FLECHETTE_DAMAGE			3//15
+#define FLECHETTE_DAMAGE			30//3
 #define FLECHETTE_VELOCITY			5000
 #define FLECHETTE_SIZE				1
 //#define FLECHETTE_MINE_RADIUS_CHECK	256
@@ -359,7 +359,7 @@ static void WP_FireBryarPistolAlt(gentity_t*ent)
 		missile2 = CreateMissile(muzzle2,forward,BRYAR_PISTOL_VEL,10000,ent,qtrue);
 	//[/DualPistols]
 
-	if(ent->client->skillLevel[SK_PISTOL] != FORCE_LEVEL_3)
+	if(ent->client->skillLevel[SK_PISTOL] == FORCE_LEVEL_1) //Джайден: кто так делает!?
 	{
 		return;
 	}
@@ -4999,7 +4999,7 @@ void FireWeapon( gentity_t *ent, qboolean altFire )
 
 		case WP_BRYAR_PISTOL:
 			//if ( g_gametype.integer == GT_SIEGE )
-			if (1) 
+			if (ent->client->skillLevel[SK_PISTOL] > FORCE_LEVEL_1) 
 			{//allow alt-fire
 				WP_FireBryarPistol( ent, altFire );
 			}

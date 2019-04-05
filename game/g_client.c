@@ -3436,6 +3436,7 @@ void ClientSpawn(gentity_t *ent) {
 	int					savedDodgeMax;
 	//[/DodgeSys]
 	int					maxHealth;
+	int					maxShield; 
 	saberInfo_t			saberSaved[MAX_SABERS];
 	int					l = 0;
 	void				*g2WeaponPtrs[MAX_SABERS];
@@ -3931,6 +3932,7 @@ void ClientSpawn(gentity_t *ent) {
 	}
 	// clear entity values
 	client->ps.stats[STAT_MAX_HEALTH] = client->pers.maxHealth;
+	client->ps.stats[STAT_ARMOR] = 0; //Jayden I dont want clients with shields.
 	client->ps.eFlags = flags;
 	client->mGameFlags = gameFlags;
 

@@ -9891,6 +9891,7 @@ qboolean OJP_DodgeKick( gentity_t *self, gentity_t *pusher, const vec3_t pushDir
 	else
 	{
 	G_SetAnim(self, &self->client->pers.cmd, SETANIM_BOTH, BOTH_FLIP_BACK1, SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLD, 100);
+	G_Throw(self, pushDir, 200);
 	//[ExpSys]
 	G_DodgeDrain(self, pusher, DODGE_KICKCOST);
 	//self->client->ps.stats[STAT_DODGE] -= DODGE_KICKCOST;
