@@ -2118,7 +2118,7 @@ void G_Say( gentity_t *ent, gentity_t *target, int mode, const char *chatText ) 
 	char		*locMsg = NULL;
 
 	int distance = 0;
-	char		*chatMod;
+	char		*chatMod = "null";
 
 	if ( g_gametype.integer < GT_TEAM && mode == SAY_TEAM ) {
 		mode = SAY_ALL;
@@ -2266,11 +2266,13 @@ void G_Say( gentity_t *ent, gentity_t *target, int mode, const char *chatText ) 
 			Com_sprintf (name, sizeof(name), EC"(%s%c%c"EC")"EC": ", 
 				ent->client->pers.netname, Q_COLOR_ESCAPE, COLOR_WHITE );
 			locMsg = location;
+			chatMod = (char*)chatText;
 		}
 		else
 		{
 			Com_sprintf (name, sizeof(name), EC"(%s%c%c"EC")"EC": ", 
 				ent->client->pers.netname, Q_COLOR_ESCAPE, COLOR_WHITE );
+			chatMod = (char*)chatText;
 		}
 		color = COLOR_CYAN;
 		break;
@@ -2281,10 +2283,13 @@ void G_Say( gentity_t *ent, gentity_t *target, int mode, const char *chatText ) 
 		{
 			Com_sprintf (name, sizeof(name), EC"[%s%c%c"EC"]"EC": ", ent->client->pers.netname, Q_COLOR_ESCAPE, COLOR_WHITE );
 			locMsg = location;
+			chatMod = (char*)chatText;
+			
 		}
 		else
 		{
 			Com_sprintf (name, sizeof(name), EC"[%s%c%c"EC"]"EC": ", ent->client->pers.netname, Q_COLOR_ESCAPE, COLOR_WHITE );
+			chatMod = (char*)chatText;
 		}
 		color = COLOR_MAGENTA;
 		break;

@@ -16182,20 +16182,27 @@ SkipTrueView:
 		}
 		*/
 	}
-	else if ( cent->currentState.activeForcePass 
+	else if (cent->currentState.activeForcePass
 		&& cent->currentState.NPC_class != CLASS_VEHICLE)
 	{//doing the electrocuting
 		vec3_t axis[3];
 		vec3_t tAng, fAng, fxDir;
 		vec3_t efOrg;
+		vec3_t efOrg1; //for second hand
 
-		VectorSet( tAng, cent->turAngles[PITCH], cent->turAngles[YAW], cent->turAngles[ROLL] );
+		VectorSet(tAng, cent->turAngles[PITCH], cent->turAngles[YAW], cent->turAngles[ROLL]);
 
-		VectorSet( fAng, cent->pe.torso.pitchAngle, cent->pe.torso.yawAngle, 0 );
+		VectorSet(fAng, cent->pe.torso.pitchAngle, cent->pe.torso.yawAngle, 0);
 
-		AngleVectors( fAng, fxDir, NULL, NULL );
+		AngleVectors(fAng, fxDir, NULL, NULL);
 
-		//trap_G2API_GetBoltMatrix(cent->ghoul2, 0, ci->bolt_lhand, &boltMatrix, tAng, cent->lerpOrigin, cg.time, cgs.gameModels, cent->modelScale);
+		mdxaBone_t 	rHandMatrix;
+
+		trap_G2API_GetBoltMatrix(cent->ghoul2, 0, ci->bolt_rhand, &rHandMatrix, cent->turAngles, cent->lerpOrigin, cg.time, cgs.gameModels, cent->modelScale);
+		efOrg1[0] = rHandMatrix.matrix[0][3];
+		efOrg1[1] = rHandMatrix.matrix[1][3];
+		efOrg1[2] = rHandMatrix.matrix[2][3];
+
 		if (!gotLHandMatrix)
 		{
 			trap_G2API_GetBoltMatrix(cent->ghoul2, 0, ci->bolt_lhand, &lHandMatrix, cent->turAngles, cent->lerpOrigin, cg.time, cgs.gameModels, cent->modelScale);
@@ -16206,20 +16213,40 @@ SkipTrueView:
 		efOrg[1] = lHandMatrix.matrix[1][3];
 		efOrg[2] = lHandMatrix.matrix[2][3];
 
-		AnglesToAxis( fAng, axis );
-	
-		if ( cent->currentState.activeForcePass > FORCE_LEVEL_2 )
-		{//arc
-			//trap_FX_PlayEffectID( cgs.effects.forceLightningWide, efOrg, fxDir );
-			//trap_FX_PlayEntityEffectID(cgs.effects.forceLightningWide, efOrg, axis, cent->boltInfo, cent->currentState.number, -1, -1);
-			trap_FX_PlayEntityEffectID(cgs.effects.forceLightningWide, efOrg, axis, -1, -1, -1, -1);
+
+		AnglesToAxis(fAng, axis);
+
+		if (cent->currentState.torsoAnim == BOTH_FORCE_2HANDEDLIGHTNING_HOLD)
+			//use both hands!
+		{
+			if (cent->currentState.activeForcePass > FORCE_LEVEL_2)
+			{//arc
+				//trap_FX_PlayEffectID( cgs.effects.forceLightningWide, efOrg, fxDir );
+				//trap_FX_PlayEntityEffectID(cgs.effects.forceLightningWide, efOrg, axis, cent->boltInfo, cent->currentState.number, -1, -1);
+				trap_FX_PlayEntityEffectID(cgs.effects.forceLightningWide, efOrg1, axis, -1, -1, -1, -1);
+				trap_FX_PlayEntityEffectID(cgs.effects.forceLightningWide, efOrg, axis, -1, -1, -1, -1);
+			}
+			else
+			{//line
+				//trap_FX_PlayEffectID( cgs.effects.forceLightning, efOrg, fxDir );
+				//trap_FX_PlayEntityEffectID(cgs.effects.forceLightning, efOrg, axis, cent->boltInfo, cent->currentState.number, -1, -1);
+				trap_FX_PlayEntityEffectID(cgs.effects.forceLightning, efOrg1, axis, -1, -1, -1, -1);
+				trap_FX_PlayEntityEffectID(cgs.effects.forceLightning, efOrg, axis, -1, -1, -1, -1);
+			}
 		}
 		else
-		{//line
-			//trap_FX_PlayEffectID( cgs.effects.forceLightning, efOrg, fxDir );
-			//trap_FX_PlayEntityEffectID(cgs.effects.forceLightning, efOrg, axis, cent->boltInfo, cent->currentState.number, -1, -1);
-			trap_FX_PlayEntityEffectID(cgs.effects.forceLightning, efOrg, axis, -1, -1, -1, -1);
-		}
+			if (cent->currentState.activeForcePass > FORCE_LEVEL_2)
+			{//arc
+			 //trap_FX_PlayEffectID( cgs.effects.forceLightningWide, efOrg, fxDir );
+			 //trap_FX_PlayEntityEffectID(cgs.effects.forceLightningWide, efOrg, axis, cent->boltInfo, cent->currentState.number, -1, -1);
+				trap_FX_PlayEntityEffectID(cgs.effects.forceLightningWide, efOrg, axis, -1, -1, -1, -1);
+			}
+			else
+			{//line
+			 //trap_FX_PlayEffectID( cgs.effects.forceLightning, efOrg, fxDir );
+			 //trap_FX_PlayEntityEffectID(cgs.effects.forceLightning, efOrg, axis, cent->boltInfo, cent->currentState.number, -1, -1);
+				trap_FX_PlayEntityEffectID(cgs.effects.forceLightning, efOrg, axis, -1, -1, -1, -1);
+			}
 
 		/*
 		if (cent->bolt4 < cg.time)

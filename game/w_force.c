@@ -2481,8 +2481,8 @@ void ForceLightningDamage( gentity_t *self, gentity_t *traceEnt, vec3_t dir, vec
 				//[/ForceSys]
 
 				if ( self->client->ps.weapon == WP_MELEE
-					&& self->client->ps.fd.forcePowerLevel[FP_LIGHTNING] > FORCE_LEVEL_2
-					&& !Q_irand(0, 1) )
+					&& self->client->ps.fd.forcePowerLevel[FP_LIGHTNING] > FORCE_LEVEL_1
+					/*&& !Q_irand(0, 1) */)
 				{//2-handed lightning
 					//jackin' 'em up, Palpatine-style
 					dmg *= 2;
@@ -2550,17 +2550,17 @@ void ForceLightningDamage( gentity_t *self, gentity_t *traceEnt, vec3_t dir, vec
 void ForceShootLightning( gentity_t *self )
 {
 	trace_t	tr;
-	vec3_t	end, forward;
+	vec3_t	end, forward, right, up;
 	gentity_t	*traceEnt;
 
 	if ( self->health <= 0 )
 	{
 		return;
 	}
-	AngleVectors( self->client->ps.viewangles, forward, NULL, NULL );
+	AngleVectors( self->client->ps.viewangles, forward, NULL, NULL);
 	VectorNormalize( forward );
 
-if ( self->client->ps.fd.forcePowerLevel[FP_LIGHTNING] > FORCE_LEVEL_2 )
+/*if ( self->client->ps.fd.forcePowerLevel[FP_LIGHTNING] > FORCE_LEVEL_2 )
 	{//arc
 		vec3_t	center, mins, maxs, dir, ent_org, size, v;
 		float	radius = FORCE_LIGHTNING_RADIUS, dot, dist;
@@ -2650,6 +2650,114 @@ if ( self->client->ps.fd.forcePowerLevel[FP_LIGHTNING] > FORCE_LEVEL_2 )
 
 			// ok, we are within the radius, add us to the incoming list
 			ForceLightningDamage( self, traceEnt, dir, ent_org );
+		}
+	}*/
+	if (self->client->ps.fd.forcePowerLevel[FP_LIGHTNING] > FORCE_LEVEL_2)
+	{//tube
+		vec3_t	center, mins, maxs, dir, ent_org, size, v;
+		float	radius = 2048, dot, dist;
+		gentity_t	*entityList[MAX_GENTITIES];
+		int			iEntityList[MAX_GENTITIES];
+		int		e, numListedEntities, i;
+
+		VectorCopy(self->client->ps.origin, center);
+		for (i = 0; i < 3; i++)
+		{
+			mins[i] = center[i] - radius;
+			maxs[i] = center[i] + radius;
+		}
+
+		numListedEntities = trap_EntitiesInBox(mins, maxs, iEntityList, MAX_GENTITIES);
+
+		i = 0;
+		while (i < numListedEntities)
+		{
+			entityList[i] = &g_entities[iEntityList[i]];
+
+			i++;
+		}
+
+		for (e = 0; e < numListedEntities; e++)
+		{
+			traceEnt = entityList[e];
+
+			if (!traceEnt)
+				continue;
+			if (traceEnt == self)
+				continue;
+			if (traceEnt->r.ownerNum == self->s.number && traceEnt->s.weapon != WP_THERMAL)//can push your own thermals
+				continue;
+			if (!traceEnt->inuse)
+				continue;
+			if (!traceEnt->takedamage)
+				continue;
+			if (traceEnt->health <= 0)//no torturing corpses
+				continue;
+			if (!g_friendlyFire.integer && OnSameTeam(self, traceEnt))
+				continue;
+			//this is all to see if we need to start a saber attack, if it's in flight, this doesn't matter
+			// find the distance from the edge of the bounding box
+			for (i = 0; i < 3; i++)
+			{
+				if (center[i] < traceEnt->r.absmin[i])
+				{
+					v[i] = traceEnt->r.absmin[i] - center[i];
+				}
+				else if (center[i] > traceEnt->r.absmax[i])
+				{
+					v[i] = center[i] - traceEnt->r.absmax[i];
+				}
+				else
+				{
+					v[i] = 0;
+				}
+			}
+
+			VectorSubtract(traceEnt->r.absmax, traceEnt->r.absmin, size);
+			VectorMA(traceEnt->r.absmin, 0.5, size, ent_org);
+
+			//see if they're in front of me
+			if (!InFront(ent_org, center, self->client->ps.viewangles, 0.0f))
+			{
+				continue;
+			}
+			//must be close enought to view line
+			//Âîñïîëüçóåìñÿ øêîëüíûìè ìåòîäàìè. 
+			VectorMA(self->client->ps.origin, 2048, forward, end); //Êîíåö ëèíèè âçãëÿäà.
+			//Ó íàñ åñòü center - íà÷àëî è end - êîíåö íåêîåãî îòðåçêà. Íóæíî ïðîâåðèòü ðàññòîÿíèå äî íåãî îò ent_org
+			float ab, cb, ac, perimeter, distance; //ÈÙÅÌ ÐÀÑÑÒÎßÍÈÅ ÊÀÊ ÂÛÑÎÒÓ ÒÐÅÓÃÎËÜÍÈÊÀ ABC xD
+			vec3_t FromEntToEnd, FromEntToCenter; 
+			ab = 2048; 
+			VectorSubtract(end, ent_org, FromEntToEnd);
+			cb = VectorLength(FromEntToEnd);
+			VectorSubtract(center, ent_org, FromEntToCenter);
+			ac = VectorLength(FromEntToCenter);
+			
+			perimeter = ab + cb + ac; 
+			perimeter = perimeter / 2; 
+
+			distance = (2 * sqrt(perimeter * ((perimeter - ab) * (perimeter-cb)*(perimeter-ac)))) / ab; //ÔÎÐÌÓËÀ ÃÅÐÎÍÀ ÏÐÈÂÅÒ ØÊÎËÜÍÀß ÃÅÎÌÅÒÐèß ÀÕÀÕÀÕÀÕÀ
+			
+			if (distance > 60.)
+			{
+				continue;
+			}
+
+			//in PVS?
+			if (!traceEnt->r.bmodel && !trap_InPVS(ent_org, self->client->ps.origin))
+			{//must be in PVS
+				continue;
+			}
+
+			//Now check and see if we can actually hit it
+			trap_Trace(&tr, self->client->ps.origin, vec3_origin, vec3_origin, ent_org, self->s.number, MASK_SHOT);
+			if (tr.fraction < 1.0f && tr.entityNum != traceEnt->s.number)
+			{//must have clear LOS
+				continue;
+			}
+
+			// ok, we are within the radius, add us to the incoming list
+			ForceLightningDamage(self, traceEnt, dir, ent_org);
 		}
 	}
 	else

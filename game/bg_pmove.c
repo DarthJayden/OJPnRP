@@ -8580,7 +8580,7 @@ static void PM_Weapon( void )
 			else if ( (pm->ps->fd.forcePowersActive&(1<<FP_LIGHTNING)) )
 			{//lightning
 				if ( pm->ps->weapon == WP_MELEE
-					&& pm->ps->activeForcePass > FORCE_LEVEL_2 )
+					&& /*pm->ps->activeForcePass > FORCE_LEVEL_2 */pm->ps->activeForcePass > FORCE_LEVEL_1) //Jayden: level 2 also do!
 				{//2-handed lightning
 					desiredAnim = BOTH_FORCE_2HANDEDLIGHTNING_HOLD;
 				}
