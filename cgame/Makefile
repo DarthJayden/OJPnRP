@@ -26,7 +26,11 @@ CFLAGS += -D_JK2
 CFLAGS += -fPIC -Wall -masm=intel -m32# -fno-strict-aliasing -march=i586
 CFLAGS += -D_JK2MP
 
+<<<<<<< HEAD
 OFILES += cg_camera.o cg_consolecmds.0 cg_draw.o cg_drawtools.o cg_effects.o cg_ents.o cg_event.o cg_holster.o cg_info.o
+=======
+OFILES += cg_camera.o cg_consolecmds.o cg_draw.o cg_drawtools.o cg_effects.o cg_ents.o cg_event.o cg_holster.o cg_info.o
+>>>>>>> ad4b207001e635b1771c64b95bdd9746d57986f7
 OFILES += cg_light.o cg_localents.o cg_main.o cg_marks.o cg_newDraw.o cg_players.o cg_playerstate.o cg_predict.o cg_saga.o
 OFILES += cg_scoreboard.o cg_servercmds.o cg_snapshot.o cg_strap.o cg_syscalls.o cg_turret.o cg_view.o cg_weaponinit.o 
 OFILES += cg_weapons.o
