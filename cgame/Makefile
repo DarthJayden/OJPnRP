@@ -26,7 +26,7 @@ CFLAGS += -D_JK2
 CFLAGS += -fPIC -Wall -masm=intel -m32# -fno-strict-aliasing -march=i586
 CFLAGS += -D_JK2MP
 
-OFILES += cg_camera.o cg_consolecmds.0 cg_draw.o cg_drawtools.o cg_effects.o cg_ents.o cg_event.o cg_holster.o cg_info.o
+OFILES += cg_camera.o cg_consolecmds.о cg_draw.o cg_drawtools.o cg_effects.o cg_ents.o cg_event.o cg_holster.o cg_info.o
 
 OFILES += cg_camera.o cg_consolecmds.o cg_draw.o cg_drawtools.o cg_effects.o cg_ents.o cg_event.o cg_holster.o cg_info.o
 
