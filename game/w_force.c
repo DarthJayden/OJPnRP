@@ -2738,7 +2738,7 @@ void ForceShootLightning( gentity_t *self )
 
 			distance = (2 * sqrt(perimeter * ((perimeter - ab) * (perimeter-cb)*(perimeter-ac)))) / ab; //ФОРМУЛА ГЕРОНА ПРИВЕТ ШКОЛЬНАЯ ГЕОМЕТРиЯ АХАХАХАХА
 			
-			if (distance > 60.)
+			if (distance > 60.) //Почему БОЛЬШЕ? Не знаю, вопреки логике работает только так....
 			{
 				continue;
 			}

@@ -9,7 +9,7 @@
 #include "..\ghoul2\g2.h"
 #endif
 //[/Mac]
-#include "bg_saga.h"
+#include "../game/bg_saga.h"
 
 //[TrueView]
 //True View Camera Position Check Function
