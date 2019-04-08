@@ -2,7 +2,7 @@
 //
 // cg_main.c -- initialization and primary entry point for cgame
 #include "cg_local.h"
-#include "../game/bg_public.h"
+#include "../game/bg_public.h" //Jayden.
 
 #include "../ui/ui_shared.h"
 // display context for new ui stuff

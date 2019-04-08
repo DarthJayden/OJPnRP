@@ -6,7 +6,7 @@
 #if MAC_PORT
 #include "../ghoul2/g2.h"
 #else
-#include "..\ghoul2\g2.h"
+#include "../ghoul2/G2.h"
 #endif
 //[/Mac]
 #include "../game/bg_saga.h"
