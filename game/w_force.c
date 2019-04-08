@@ -2757,7 +2757,7 @@ void ForceShootLightning( gentity_t *self )
 			}
 
 			// ok, we are within the radius, add us to the incoming list
-			ForceLightningDamage(self, traceEnt, dir, ent_org);
+			ForceLightningDamage(self, traceEnt, forward, ent_org);
 		}
 	}
 	else
