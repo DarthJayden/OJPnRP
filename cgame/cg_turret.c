@@ -5,7 +5,7 @@
 #include "../ghoul2/g2.h"
 #else
 #include "../game/q_shared.h"
-#include "../ghoul2/g2.h"
+#include "../ghoul2/G2.h"
 #endif
 //[/Mac]
 
