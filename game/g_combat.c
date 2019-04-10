@@ -5244,7 +5244,7 @@ void G_Knockdown( gentity_t *self, gentity_t *attacker, const vec3_t pushDir, fl
 		}
 		
 		//racc - check to see if an NPC should get conventently kicked off a nearby cliff.
-		G_CheckLedgeDive( self, 72, pushDir, qfalse, qfalse );
+		G_CheckLedgeDive( self, 72, pushDir, qfalse, qfalse ); 
 
 		if ( /*!BG_SpinningSaberAnim( self->client->ps.legsAnim )  //racc - I've removed this requirement since it's over used by staffs/duals.
 			&& !BG_FlippingAnim( self->client->ps.legsAnim ) 

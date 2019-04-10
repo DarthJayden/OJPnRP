@@ -214,7 +214,7 @@ void P_WorldEffects( gentity_t *ent ) {
 extern void G_ApplyKnockback( gentity_t *targ, vec3_t newDir, float knockback );
 void DoImpact( gentity_t *self, gentity_t *other, qboolean damageSelf )
 {//RACC - this appears to be for impact damage for dynamic map entities, like elevators,
-	//glass, etc.
+	//glass, etc. BUT TIS ISNT ABOUT CLIENT TO CLIENT IMPACT
 	float magnitude, my_mass;
 	vec3_t	velocity;
 	int cont;

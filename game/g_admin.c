@@ -126,9 +126,8 @@ void AM_Notarget(gentity_t *ent)
 		else
 			trap_SendServerCommand(ent - g_entities, va("print \"%s's notarget ON\n\"", target->client->pers.netname));
 	}
-
-	
 }
+
 /*
 void AM_God()
 {

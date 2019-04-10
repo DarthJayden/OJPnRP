@@ -589,8 +589,10 @@ void npc_push(gentity_t *self, gentity_t *other, trace_t *trace )
 			int i=0;
 
 			G_Knockdown(self,other,other->client->ps.velocity,100,qfalse);
-			self->client->ps.velocity[1] = other->client->ps.velocity[1]*5.5f;
-			self->client->ps.velocity[0] = other->client->ps.velocity[0]*5.5f;
+			//self->client->ps.velocity[1] = other->client->ps.velocity[1]*5.5f; WHAT?!
+			//self->client->ps.velocity[0] = other->client->ps.velocity[0]*5.5f;
+			self->client->ps.velocity[1] = other->client->ps.velocity[1]; 
+			self->client->ps.velocity[0] = other->client->ps.velocity[0];
 
 			for(i=0;i<1024;i++)
 			{

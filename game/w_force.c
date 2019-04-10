@@ -4542,7 +4542,9 @@ void ForceThrow( gentity_t *self, qboolean pull )
 				//shove them
 				if ( pull )
 				{
-					VectorSubtract( self->client->ps.origin, thispush_org, pushDir );
+					VectorSubtract( self->client->ps.origin, thispush_org, pushDir ); //Надо сделать так, чтобы 
+					//Клиент долетал не вплотную к пуллеру.
+					
 
 					if (push_list[x]->client && VectorLength(pushDir) <= 256)
 					{
@@ -4718,6 +4720,9 @@ void ForceThrow( gentity_t *self, qboolean pull )
 					}
 					//fullbody push effect
 					push_list[x]->client->pushEffectTime = level.time + 600;
+					//[Jayden: for client_touch]
+					push_list[x]->client->lastPusherID = self->client->ps.clientNum;
+					// /[Jayden: for client_touch ]
 
 					if(!pull)
 					{
@@ -5012,7 +5017,8 @@ void WP_ForcePowerStop( gentity_t *self, forcePowers_t forcePower )
 		{
 			self->client->ps.forceHandExtendTime = 0;
 		}
-
+		//Jayden: for clitn_touch fix
+		g_entities[self->client->ps.fd.forceGripEntityNum].client->lastGripperID = 33; //There is no client number 33?
 		self->client->ps.fd.forceGripEntityNum = ENTITYNUM_NONE;
 
 		self->client->ps.powerups[PW_DISINT_4] = 0;
@@ -5183,6 +5189,8 @@ void DoGripAction(gentity_t *self, forcePowers_t forcePower)
 	}
 
 	Jetpack_Off(gripEnt); //make sure the guy being gripped has his jetpack off.
+	//Jayden: for client_touch fix
+	gripEnt->client->lastGripperID = self->client->ps.clientNum;
 
 	if (gripLevel == FORCE_LEVEL_1)
 	{

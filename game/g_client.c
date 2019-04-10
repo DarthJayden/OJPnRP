@@ -3345,11 +3345,15 @@ void player_touch(gentity_t *self, gentity_t *other, trace_t *trace )
 
 	if(!other->client)
 		return;
-
+	//Çàäà÷à: ÅñËÈ ß ÁÛËÀ ÒÎÉ ÊÒÎ ÏÓØÍÓËÀ ÊËÈÅÍÒÀ, ÒÎ ÎÍ ÍÅ ÁÓÄÅÒ ÌÅÍß ÒÎËÊÀÒÜ! 
 
 	if(other->client->pushEffectTime > level.time
 		|| other->client->ps.fd.forceGripBeingGripped > level.time)
 	{//Other player was pushed!
+		if (other->client->lastPusherID == self->client->ps.clientNum || other->client->lastGripperID == self->client->ps.clientNum)
+		{
+			return;
+		}
 		float speed = (vec_t)sqrt (other->client->ps.velocity[0]*
 			other->client->ps.velocity[0] + other->client->ps.velocity[1]*
 			other->client->ps.velocity[1])/2;
@@ -3361,8 +3365,10 @@ void player_touch(gentity_t *self, gentity_t *other, trace_t *trace )
 			int i=0;
 
 			G_Knockdown(self,other,other->client->ps.velocity,100,qfalse);
-			self->client->ps.velocity[1] = other->client->ps.velocity[1]*5.5f;
-			self->client->ps.velocity[0] = other->client->ps.velocity[0]*5.5f;
+			//self->client->ps.velocity[1] = other->client->ps.velocity[1]*5.5f; //What? x5?!
+			//self->client->ps.velocity[0] = other->client->ps.velocity[0]*5.5f;
+			self->client->ps.velocity[1] = other->client->ps.velocity[1]; //Çàêîí ñîõðàíåíèÿ èìïóëüñà íå?!
+			self->client->ps.velocity[0] = other->client->ps.velocity[0];
 
 			for(i=0;i<1024;i++)
 			{

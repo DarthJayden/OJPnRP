@@ -712,6 +712,10 @@ struct gclient_s {
 	int			bodyGrabIndex;
 
 	int			pushEffectTime;
+	//[Jayden: for client_touch]
+	int   lastPusherID; 
+	int   lastGripperID; 
+	// /[Jayden: for client_touch ]
 
 	int			invulnerableTimer;
 
