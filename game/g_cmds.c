@@ -6545,6 +6545,14 @@ ent->client->ps.velocity[2] = 150;
 	{ 
 		AM_Notarget(ent);
 	}
+	else if ((Q_stricmp(cmd, "amanimh") == 0) || (Q_stricmp(cmd, "animhme") == 0))
+	{
+		AM_AnimateHold(ent);
+	}
+	else if ((Q_stricmp(cmd, "amanim") == 0) || (Q_stricmp(cmd, "animme") == 0))
+	{
+		AM_Animate(ent);
+	}
 	//[/Jayden: admin system]
 #endif
 #ifdef VM_MEMALLOC_DEBUG

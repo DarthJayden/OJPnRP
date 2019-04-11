@@ -1,5 +1,7 @@
+
 extern void AM_Tele(gentity_t *ent);
 extern void AM_Notarget(gentity_t *ent);
+extern void AM_Animate(gentity_t *ent);
 
 typedef enum
 {
@@ -14,7 +16,7 @@ typedef enum
 	A_ADMINKICK,
 	A_NPC,
 	A_INSULTSILENCE,
-	A_TERMINATOR,
+	A_ANIMATE,
 	A_DEMIGOD,
 	A_ADMINSIT,
 	A_SCALE,

@@ -21,6 +21,7 @@ extern int gPainHitLoc;
 extern vec3_t gPainPoint;
 extern int G_ClientNumberFromArg(char* name);
 
+extern stringID_table_t animTable[MAX_ANIMATIONS + 1];
 //==================================================================
 
 // the "gameversion" client command will print this plus compile date
