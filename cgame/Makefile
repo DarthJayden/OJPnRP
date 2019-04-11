@@ -27,13 +27,13 @@ CFLAGS += -fPIC -Wall -masm=intel -m32# -fno-strict-aliasing -march=i586
 CFLAGS += -D_JK2MP
 
 
-#OFILES += bg_g2_utils.o bg_misc.o bg_panimate.o bg_pmove.o bg_saber.o bg_saberLoad.o bg_saga.o bg_slidemove.o bg_vehicleLoad.o bg_weapons.o
 OFILES += cg_camera.o cg_consolecmds.o cg_draw.o cg_drawtools.o cg_effects.o cg_ents.o cg_event.o cg_holster.o cg_info.o
 OFILES += cg_light.o cg_localents.o cg_main.o cg_marks.o cg_newDraw.o cg_players.o cg_playerstate.o cg_predict.o cg_saga.o
 OFILES += cg_scoreboard.o cg_servercmds.o cg_snapshot.o cg_strap.o cg_syscalls.o cg_turret.o cg_view.o cg_weaponinit.o 
 OFILES += cg_weapons.o
 OFILES += fx_blaster.o fx_bowcaster.o fx_bryarpistol.o fx_demp2.o fx_disruptor.o fx_flechette.o fx_force.o fx_heavyrepeater.o
 OFILES += fx_rocketlauncher.o 
+OFILES += game/bg_g2_utils.o game/bg_misc.o game/bg_panimate.o game/bg_pmove.o game/bg_saber.o game/bg_saberLoad.o game/bg_saga.o game/bg_slidemove.o game/bg_vehicleLoad.o game/bg_weapons.o
 
 
 $(TARGET): $(OFILES)

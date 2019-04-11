@@ -3350,7 +3350,7 @@ void player_touch(gentity_t *self, gentity_t *other, trace_t *trace )
 	if(other->client->pushEffectTime > level.time
 		|| other->client->ps.fd.forceGripBeingGripped > level.time)
 	{//Other player was pushed!
-		if (other->client->lastPusherID == self->client->ps.clientNum || other->client->lastGripperID == self->client->ps.clientNum)
+		if (other->client->lastPusherID == self->client->ps.clientNum || (other->client->lastGripperID == self->client->ps.clientNum && other->client->ps.fd.forceGripBeingGripped > level.time))
 		{
 			return;
 		}

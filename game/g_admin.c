@@ -150,6 +150,11 @@ void AM_AnimateHold(gentity_t *ent)
 	targetNum = G_ClientNumberFromArg(arg1);
 	target = &g_entities[targetNum];
 	animName = GetIDForString(animTable, arg2);
+	if (animName == -1)
+	{
+		trap_SendServerCommand(ent - g_entities, va("print \"^3Incorrect animation ID. Did you type it properly?\n\""));
+		return;
+	}
 	if (!g_entities[targetNum].inuse)
 	{ // check to make sure client slot is in use
 		trap_SendServerCommand(ent - g_entities, va("print \"Client %s is not active\n\"", arg1));

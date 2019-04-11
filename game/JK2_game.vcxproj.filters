@@ -338,6 +338,9 @@
     <ClCompile Include="g_admin.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="g_npccontrol.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ai.h">
@@ -497,6 +500,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="g_admin.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="g_npccontrol.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

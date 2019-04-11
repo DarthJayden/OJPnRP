@@ -5017,8 +5017,7 @@ void WP_ForcePowerStop( gentity_t *self, forcePowers_t forcePower )
 		{
 			self->client->ps.forceHandExtendTime = 0;
 		}
-		//Jayden: for clitn_touch fix
-		g_entities[self->client->ps.fd.forceGripEntityNum].client->lastGripperID = 33; //There is no client number 33?
+
 		self->client->ps.fd.forceGripEntityNum = ENTITYNUM_NONE;
 
 		self->client->ps.powerups[PW_DISINT_4] = 0;

@@ -4,6 +4,7 @@
 #include "bg_saga.h"
 #include "g_roll.h"
 #include "g_admin.h"
+#include "g_npccontrol.h"
 
 //[SVN]
 //rearraigned repository to make it easier to initially compile.
@@ -6554,6 +6555,24 @@ ent->client->ps.velocity[2] = 150;
 		AM_Animate(ent);
 	}
 	//[/Jayden: admin system]
+	//[Jayden: npc control system]
+	else if ((Q_stricmp(cmd, "selectNPC") == 0))
+	{
+		SelectNPC(ent);
+	}
+	else if ((Q_stricmp(cmd, "deselectNPC") == 0))
+	{
+		DeselectNPC(ent);
+	}
+	else if ((Q_stricmp(cmd, "animNPC") == 0))
+	{
+		SetNPCAnim(ent);
+	}
+	else if ((Q_stricmp(cmd, "killNPC") == 0))
+	{
+		KillNPC(ent);
+	}
+	//[/Jayden:npc control ssytem]
 #endif
 #ifdef VM_MEMALLOC_DEBUG
 	else if (Q_stricmp(cmd, "debugTestAlloc") == 0)

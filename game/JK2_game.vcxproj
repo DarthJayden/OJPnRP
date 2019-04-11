@@ -316,6 +316,7 @@
     <ClCompile Include="g_mover.c" />
     <ClCompile Include="g_nav.c" />
     <ClCompile Include="g_navnew.c" />
+    <ClCompile Include="g_npccontrol.c" />
     <ClCompile Include="g_object.c" />
     <ClCompile Include="g_roff.c" />
     <ClCompile Include="g_roll.c" />
@@ -422,6 +423,7 @@
     <ClInclude Include="g_ICARUScb.h" />
     <ClInclude Include="g_local.h" />
     <ClInclude Include="g_nav.h" />
+    <ClInclude Include="g_npccontrol.h" />
     <ClInclude Include="g_public.h" />
     <ClInclude Include="g_roff.h" />
     <ClInclude Include="g_roll.h" />
