@@ -201,9 +201,15 @@ void AM_Animate(gentity_t *ent)
 	target = &g_entities[targetNum];
 	animName = GetIDForString(animTable, buffer);
 
+	if (animName == -1)
+	{
+		trap_SendServerCommand(ent - g_entities, va("print \"^3Incorrect animation ID. Did you type it properly?\n\""));
+		return;
+	}
 	trap_Argv(3, buffer, sizeof(buffer));
 	length = atoi(buffer);
 
+	
 	if (target->client->ps.legsAnim == animName)
 	{
 		return; 
