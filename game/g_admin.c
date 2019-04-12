@@ -232,6 +232,7 @@ void AM_Animate(gentity_t *ent)
 		ent->client->ps.saberBlocking = 0;
 	}
 }
+
 /*
 void AM_God()
 {

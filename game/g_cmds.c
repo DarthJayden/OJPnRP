@@ -6572,6 +6572,10 @@ ent->client->ps.velocity[2] = 150;
 	{
 		KillNPC(ent);
 	}
+	else if ((Q_stricmp(cmd, "npcspawn") == 0))
+	{
+		SpawnNPC(ent);
+	}
 	//[/Jayden:npc control ssytem]
 #endif
 #ifdef VM_MEMALLOC_DEBUG
