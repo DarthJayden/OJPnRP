@@ -179,6 +179,7 @@ void AM_AnimateHold(gentity_t *ent)
 		ent->client->ps.saberBlocking = 0;
 	}
 }
+
 void AM_Animate(gentity_t *ent)
 {
 	char buffer[MAX_STRING_CHARS];
@@ -233,6 +234,110 @@ void AM_Animate(gentity_t *ent)
 	}
 }
 
+void AM_Drop(gentity_t *ent)
+{
+	{
+		vec3_t vel, direction;
+		gitem_t *item;
+		gentity_t *launched;
+		gentity_t *self = ent;
+		int weapon = self->s.weapon;
+		int ammoSub;
+		float speed = 500;
+
+		AngleVectors(ent->client->ps.viewangles, direction, NULL, NULL);
+		VectorNormalize(direction);
+		if (g_gametype.integer == GT_SIEGE)
+		{ //no dropping weaps
+			return;
+		}
+
+		if (weapon <= WP_NONE || weapon == WP_MELEE)
+		{ //can't drop our hands!
+			return;
+		}
+
+		if (weapon == WP_EMPLACED_GUN ||
+			weapon == WP_TURRET)
+		{
+			return;
+		}
+
+		// find the item type for this weapon
+		item = BG_FindItemForWeapon(weapon);
+
+		ammoSub = (self->client->ps.ammo[weaponData[weapon].ammoIndex] - bg_itemlist[BG_GetItemIndexByTag(weapon, IT_WEAPON)].quantity);
+
+		if (ammoSub < 0)
+		{
+			int ammoQuan = item->quantity;
+			ammoQuan -= (-ammoSub);
+
+			if (ammoQuan <= 0 && (!weapon == WP_SABER || !weapon == WP_BRYAR_PISTOL))
+			{ //no ammo
+				return;
+			}
+		}
+
+		vel[0] = direction[0] * speed;
+		vel[1] = direction[1] * speed;
+		vel[2] = direction[2] * speed;
+
+		launched = LaunchItem(item, self->client->ps.origin, vel);
+
+		launched->s.generic1 = self->s.number;
+		launched->s.powerups = level.time + 1500;
+
+		//[WeaponSys]
+		launched->count = self->client->ps.ammo[weaponData[weapon].ammoIndex];
+
+		self->client->ps.ammo[weaponData[weapon].ammoIndex] = 0;
+		/*
+		launched->count = bg_itemlist[BG_GetItemIndexByTag(weapon, IT_WEAPON)].quantity;
+
+		self->client->ps.ammo[weaponData[weapon].ammoIndex] -= bg_itemlist[BG_GetItemIndexByTag(weapon, IT_WEAPON)].quantity;
+
+		if (self->client->ps.ammo[weaponData[weapon].ammoIndex] < 0)
+		{
+		launched->count -= (-self->client->ps.ammo[weaponData[weapon].ammoIndex]);
+		self->client->ps.ammo[weaponData[weapon].ammoIndex] = 0;
+		}
+		*/
+		//[/WeaponSys]
+
+		if ((self->client->ps.ammo[weaponData[weapon].ammoIndex] < 1 && weapon != WP_DET_PACK) ||
+			(weapon != WP_THERMAL && weapon != WP_DET_PACK && weapon != WP_TRIP_MINE))
+		{
+			int i = 0;
+			int weap = -1;
+
+			self->client->ps.stats[STAT_WEAPONS] &= ~(1 << weapon);
+
+			while (i < WP_NUM_WEAPONS)
+			{
+				if ((self->client->ps.stats[STAT_WEAPONS] & (1 << i)) && i != WP_NONE)
+				{ //this one's good
+					weap = i;
+					break;
+				}
+				i++;
+			}
+
+			if (weap != -1)
+			{
+				self->s.weapon = weap;
+				self->client->ps.weapon = weap;
+			}
+			else
+			{
+				self->s.weapon = 0;
+				self->client->ps.weapon = 0;
+			}
+
+			G_AddEvent(self, EV_NOAMMO, weapon);
+		}
+	}
+}
 /*
 void AM_God()
 {

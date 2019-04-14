@@ -6413,6 +6413,36 @@ ent->client->ps.velocity[2] = 150;
 			}
 		}
 	}
+	//[Jayden: client commands]
+		else if ((Q_stricmp(cmd, "origin") == 0) || (Q_stricmp(cmd, "amorigin") == 0))
+		{
+			int	client_id = -1;
+			char	arg1[MAX_STRING_CHARS];
+			trap_Argv(1, arg1, sizeof(arg1));
+			//client_id = G_ClientNumberFromArg(arg1);
+			client_id = atoi(arg1);
+			//
+			if (trap_Argc() > 1)
+			{
+				trap_SendServerCommand(ent - g_entities, va("print \"^1Incorrect! ^3Usage: /origin ^2or ^3/origin ID\n\""));
+			}
+			if (client_id)
+			{
+				trap_SendServerCommand(ent - g_entities, va("print \"^1X:^7%d, ^1Y:^7%d, ^1Z:^7%d\n\"", (int)g_entities[client_id].client->ps.origin[0], (int)g_entities[client_id].client->ps.origin[1], (int)g_entities[client_id].client->ps.origin[2]));
+				return;
+			}
+			else
+			{
+				trap_SendServerCommand(ent - g_entities, va("print \"^1X:^7%d, ^1Y:^7%d, ^1Z:^7%d\n\"", (int)ent->client->ps.origin[0], (int)ent->client->ps.origin[1], (int)ent->client->ps.origin[2]));
+			}
+		}
+
+		else if ((Q_stricmp(cmd, "dropweapon") == 0))
+		{
+			AM_Drop(ent); 
+		}
+	//[/Jayden:client commands]
+	
 	//[Jayden: admin system]
 	else if ((Q_stricmp(cmd, "adminlogin") == 0) || (Q_stricmp(cmd, "amlogin") == 0))
 	{
@@ -6465,31 +6495,9 @@ ent->client->ps.velocity[2] = 150;
 			return;
 		}
 	}
-	else if ((Q_stricmp(cmd, "origin") == 0) || (Q_stricmp(cmd, "amorigin") == 0))
-	{ // teleport to specific location
-	  //
-		int	client_id = -1;
-		char	arg1[MAX_STRING_CHARS];
-		trap_Argv(1, arg1, sizeof(arg1));
-		//client_id = G_ClientNumberFromArg(arg1);
-		client_id = atoi(arg1);
-		//
-		if (trap_Argc() > 1)
-		{
-			trap_SendServerCommand(ent - g_entities, va("print \"^1Incorrect! ^3Usage: /origin ^2or ^3/origin ID\n\""));
-		}
-		if (client_id)
-		{
-			trap_SendServerCommand(ent - g_entities, va("print \"^1X:^7%d, ^1Y:^7%d, ^1Z:^7%d\n\"", (int)g_entities[client_id].client->ps.origin[0], (int)g_entities[client_id].client->ps.origin[1], (int)g_entities[client_id].client->ps.origin[2]));
-			return;
-		}
-		else
-		{
-			trap_SendServerCommand(ent - g_entities, va("print \"^1X:^7%d, ^1Y:^7%d, ^1Z:^7%d\n\"", (int)ent->client->ps.origin[0], (int)ent->client->ps.origin[1], (int)ent->client->ps.origin[2]));
-		}
-	}
 	else if ((Q_stricmp(cmd, "teleport") == 0) || (Q_stricmp(cmd, "tele") == 0) || (Q_stricmp(cmd, "admintele") == 0) || (Q_stricmp(cmd, "amtele") == 0))
 	{ // teleport to specific location
+
 		if (!ent->client->pers.iamanadmin)
 		{
 			if (ojp_allowClientTele.integer == 0)
@@ -6537,10 +6545,7 @@ ent->client->ps.velocity[2] = 150;
 				return;
 			}
 		}
-		else
-		{
-			AM_Tele(ent);
-		}
+		
 	}
 	else if ((Q_stricmp(cmd, "amtarget") == 0) || (Q_stricmp(cmd, "amnotarget") == 0))
 	{ 
