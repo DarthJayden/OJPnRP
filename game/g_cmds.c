@@ -6551,13 +6551,85 @@ ent->client->ps.velocity[2] = 150;
 	{ 
 		AM_Notarget(ent);
 	}
-	else if ((Q_stricmp(cmd, "amanimh") == 0) || (Q_stricmp(cmd, "animhme") == 0))
-	{
-		AM_AnimateHold(ent);
-	}
 	else if ((Q_stricmp(cmd, "amanim") == 0) || (Q_stricmp(cmd, "animme") == 0))
 	{
-		AM_Animate(ent);
+		int target_num; 
+		char buffer[MAX_STRING_CHARS], anim_name[MAX_STRING_CHARS];
+		int length;
+		qboolean hold = qfalse; 
+
+		if (trap_Argc() < 2 || trap_Argc() > 4)
+		{
+			if (!(ent->r.svFlags & SVF_ADMIN1) || ((ent->r.svFlags & SVF_ADMIN1) && !(g_adminControl1.integer & (1 << A_ANIMATE))))
+			{
+				trap_SendServerCommand(ent - g_entities, va("print \"^3Usage: amanim animation_name (optional)length/hold\n\""));
+			}
+			else
+			{
+				trap_SendServerCommand(ent - g_entities, va("print \"^3Usage: amanim <id> <anim_name> <optional: length or hold>\n\""));
+			}
+			return; //wrong argument count!
+		}
+		if (trap_Argc() == 2) //animme anim_name //animate myself, no admin 
+		{
+			trap_Argv(1, anim_name, sizeof(anim_name));
+			target_num = ent->client->ps.clientNum;
+			length = 0; 
+		}
+		if (trap_Argc() == 3) //animme anim_name length/hold. Myself, no admin.  OR animme id animlength, requarie admin
+		{
+			trap_Argv(1, buffer, sizeof(buffer));
+			if (G_ClientNumberFromArg(buffer) < 0) //1t arg is not a client number
+			{
+				target_num = ent->client->ps.clientNum;
+				Q_strncpyz(anim_name, buffer, sizeof(anim_name)); //Первый аргумент - анимнейм! 
+				trap_Argv(2, buffer, sizeof(buffer));
+				if (Q_stricmp(buffer, "hold") == 0)
+				{
+					length = 0;
+					hold = qtrue; 
+				}
+				else
+				{
+					length = atoi(buffer); 
+				}
+
+			}
+			else //1-st arg is client number! Admin check! 
+			{
+				if (!(ent->r.svFlags & SVF_ADMIN1) || ((ent->r.svFlags & SVF_ADMIN1) && !(g_adminControl1.integer & (1 << A_ANIMATE))))
+				{
+					trap_SendServerCommand(ent - g_entities, va("print \"^1You have no rights to use this command\n\""));
+					return;
+				}
+				target_num = G_ClientNumberFromArg(buffer);
+				trap_Argv(2, anim_name, sizeof(anim_name));
+				length = 0; 
+
+			}
+		}
+		if (trap_Argc() == 4) //animme id animname hold/length. Defenetly adminchck
+		{
+			if (!(ent->r.svFlags & SVF_ADMIN1) || ((ent->r.svFlags & SVF_ADMIN1) && !(g_adminControl1.integer & (1 << A_ANIMATE))))
+			{
+				trap_SendServerCommand(ent - g_entities, va("print \"^1You have no rights to use this command\n\""));
+				return;
+			}
+			target_num = G_ClientNumberFromArg(buffer);
+			trap_Argv(2, anim_name, sizeof(anim_name));
+			trap_Argv(3, buffer, sizeof(buffer));
+			if (Q_stricmp(buffer, "hold") == 0)
+			{
+				length = 0;
+				hold = qtrue;
+			}
+			else
+			{
+				length = atoi(buffer);
+			}
+
+		}
+		AM_Anim(ent->client->ps.clientNum, anim_name, length, hold);
 	}
 	//[/Jayden: admin system]
 	//[Jayden: npc control system]

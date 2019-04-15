@@ -128,109 +128,49 @@ void AM_Notarget(gentity_t *ent)
 	}
 }
 
-void AM_AnimateHold(gentity_t *ent)
+void AM_Anim(int target_num, char *anim_name, int length, qboolean hold)
 {
-	char arg1[MAX_STRING_CHARS]; //Client ID
-	char arg2[MAX_STRING_CHARS]; //Anim name
-	gentity_t *target; 
-	int  targetNum; 
-	int animName;
-	if (!(ent->r.svFlags & SVF_ADMIN1) || ((ent->r.svFlags & SVF_ADMIN1) && !(g_adminControl1.integer & (1 << A_ANIMATE))))
+	int animtime = length; 
+	gentity_t *target = &g_entities[target_num]; 
+	int animName = GetIDForString(animTable, anim_name);
+
+	target->client->ps.forceHandExtend = HANDEXTEND_TAUNT;
+	target->client->ps.forceDodgeAnim = animName;
+
+	if (hold)
 	{
-		trap_SendServerCommand(ent - g_entities, va("print \"^1You have no rights to use this command\n\""));
-		return;
-	}
-	if (trap_Argc() != 3)
-	{
-		trap_SendServerCommand(ent - g_entities, va("print \"^3Usage: animme client_ID anim_name \n\""));
-		return;
-	}
-	trap_Argv(1, arg1, sizeof(arg1));
-	trap_Argv(2, arg2, sizeof(arg2));
-	targetNum = G_ClientNumberFromArg(arg1);
-	target = &g_entities[targetNum];
-	animName = GetIDForString(animTable, arg2);
-	if (animName == -1)
-	{
-		trap_SendServerCommand(ent - g_entities, va("print \"^3Incorrect animation ID. Did you type it properly?\n\""));
-		return;
-	}
-	if (!g_entities[targetNum].inuse)
-	{ // check to make sure client slot is in use
-		trap_SendServerCommand(ent - g_entities, va("print \"Client %s is not active\n\"", arg1));
-		return;
-	}
-	if (target->client->ps.legsAnim == animName)
-	{
-		target->client->ps.forceDodgeAnim = 0;
-		target->client->ps.forceHandExtendTime = 0;
-		target->client->ps.saberCanThrow = qtrue;
+		if (target->client->ps.legsAnim == animName)
+		{
+			target->client->ps.forceDodgeAnim = 0;
+			target->client->ps.forceHandExtendTime = 0;
+			target->client->ps.saberCanThrow = qtrue;
+		}
+		else
+		{
+			
+			target->client->ps.forceHandExtendTime = level.time + Q3_INFINITE;
+			target->client->ps.saberCanThrow = qfalse;
+			StandardSetBodyAnim(target, animName, SETANIM_FLAG_OVERRIDE | SETANIM_FLAG_HOLD | SETANIM_FLAG_HOLDLESS);
+			target->client->ps.saberMove = LS_NONE;
+			target->client->ps.saberBlocked = 0;
+			target->client->ps.saberBlocking = 0;
+		}
 	}
 	else
 	{
-		target->client->ps.forceHandExtend = HANDEXTEND_TAUNT;
-		target->client->ps.forceDodgeAnim = animName;
-		target->client->ps.forceHandExtendTime = level.time + Q3_INFINITE;
+		if (animtime <= 0)
+		{
+			target->client->ps.forceHandExtendTime = level.time + BG_AnimLength(target->localAnimIndex, animName);
+		}
+		else
+		{
+			target->client->ps.forceHandExtendTime = level.time + animtime; 
+		}
 		target->client->ps.saberCanThrow = qfalse;
-		////ent->client->emote_freeze = 1;
 		StandardSetBodyAnim(target, animName, SETANIM_FLAG_OVERRIDE | SETANIM_FLAG_HOLD | SETANIM_FLAG_HOLDLESS);
 		target->client->ps.saberMove = LS_NONE;
-		ent->client->ps.saberBlocked = 0;
-		ent->client->ps.saberBlocking = 0;
-	}
-}
-
-void AM_Animate(gentity_t *ent)
-{
-	char buffer[MAX_STRING_CHARS];
-	gentity_t *target;
-	int  targetNum, animName, length;
-	if (!(ent->r.svFlags & SVF_ADMIN1) || ((ent->r.svFlags & SVF_ADMIN1) && !(g_adminControl1.integer & (1 << A_ANIMATE))))
-	{
-		trap_SendServerCommand(ent - g_entities, va("print \"^1You have no rights to use this command\n\""));
-		return;
-	}
-	if (trap_Argc() != 4)
-	{
-		trap_SendServerCommand(ent - g_entities, va("print \"^3Usage: animme client_ID anim_name anim_length (ms)\n\""));
-		return;
-	}
-	trap_Argv(1, buffer, sizeof(buffer));
-	targetNum = G_ClientNumberFromArg(buffer);
-	if (!g_entities[targetNum].inuse)
-	{ // check to make sure client slot is in use
-		trap_SendServerCommand(ent - g_entities, va("print \"Client %s is not active\n\"", buffer));
-		return;
-	}
-
-	trap_Argv(2, buffer, sizeof(buffer));
-	target = &g_entities[targetNum];
-	animName = GetIDForString(animTable, buffer);
-
-	if (animName == -1)
-	{
-		trap_SendServerCommand(ent - g_entities, va("print \"^3Incorrect animation ID. Did you type it properly?\n\""));
-		return;
-	}
-	trap_Argv(3, buffer, sizeof(buffer));
-	length = atoi(buffer);
-
-	
-	if (target->client->ps.legsAnim == animName)
-	{
-		return; 
-	}
-	else
-	{
-		target->client->ps.forceHandExtend = HANDEXTEND_TAUNT;
-		target->client->ps.forceDodgeAnim = animName;
-		target->client->ps.forceHandExtendTime = level.time + length;
-		target->client->ps.saberCanThrow = qfalse;
-		////ent->client->emote_freeze = 1;
-		StandardSetBodyAnim(target, animName, SETANIM_FLAG_OVERRIDE | SETANIM_FLAG_HOLD | SETANIM_FLAG_HOLDLESS);
-		target->client->ps.saberMove = LS_NONE;
-		ent->client->ps.saberBlocked = 0;
-		ent->client->ps.saberBlocking = 0;
+		target->client->ps.saberBlocked = 0;
+		target->client->ps.saberBlocking = 0;
 	}
 }
 

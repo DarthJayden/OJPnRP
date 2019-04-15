@@ -11,3 +11,9 @@ extern void StandardSetBodyAnim(gentity_t *self, int anim, int flags);
 
 extern gentity_t *NPC_Spawn_Do(gentity_t *ent);
 extern void NPC_PrecacheByClassName(const char* type);
+
+extern void SelectNPC(gentity_t *ent);
+extern void DeselectNPC(gentity_t *ent); 
+extern void SetNPCAnim(gentity_t *ent); 
+extern void KillNPC(gentity_t *ent); 
+extern void SpawnNPC(gentity_t *ent); 

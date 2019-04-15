@@ -1,8 +1,8 @@
 
 extern void AM_Tele(gentity_t *ent);
 extern void AM_Notarget(gentity_t *ent);
-extern void AM_Animate(gentity_t *ent);
 extern void AM_Drop(gentity_t *ent);
+extern void AM_Anim(int target_num, char *anim_name, int length, qboolean hold);
 
 typedef enum
 {
