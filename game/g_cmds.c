@@ -6545,6 +6545,8 @@ ent->client->ps.velocity[2] = 150;
 				return;
 			}
 		}
+		else
+			AM_Tele(ent); 
 		
 	}
 	else if ((Q_stricmp(cmd, "amtarget") == 0) || (Q_stricmp(cmd, "amnotarget") == 0))

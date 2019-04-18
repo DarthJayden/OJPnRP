@@ -4,6 +4,7 @@ extern void AM_Notarget(gentity_t *ent);
 extern void AM_Drop(gentity_t *ent);
 extern void AM_Anim(int target_num, char *anim_name, int length, qboolean hold);
 
+extern void StandardSetBodyAnim(gentity_t *self, int anim, int flags);
 typedef enum
 {
 	A_ADMINTELE = 0,

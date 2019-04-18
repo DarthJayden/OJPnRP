@@ -8,15 +8,15 @@ void AM_Tele(gentity_t *ent)
 	vec3_t forward;
 	if (ent->client->pers.iamanadmin && ((ent->r.svFlags & SVF_ADMIN1) && (g_adminControl1.integer & (1 << A_ADMINTELE))))
 	{
-		if (trap_Argc() < 2 || trap_Argc() > 4) {
+		if (trap_Argc() < 2 || trap_Argc() > 5) {
 			// trap_SendServerCommand(ent - g_entities, va("print \"^3Type in ^5/help teleport ^3if you need help with this command.\n\""));
 			trap_SendServerCommand(ent - g_entities, va("print \"^3Usaage: ^2/tele ID1 ID2^3. Example: tele 3 2\n^2or\n\""));
 			trap_SendServerCommand(ent - g_entities, va("print \"^3tele (X) (Y) (Z)\n^3type in ^2/origin ^3OR ^2/origin (name) ^3to find out (X) (Y) (Z)\n\""));
 			return;
 		}
+		int	clId = -1;
 		if (trap_Argc() == 3)
-		{
-			int	clId = -1;
+		{	
 			int   clId2 = -1;
 			char	arg1[MAX_STRING_CHARS];
 			char	arg2[MAX_STRING_CHARS];
@@ -24,7 +24,6 @@ void AM_Tele(gentity_t *ent)
 			clId = G_ClientNumberFromArg(arg1);
 			trap_Argv(2, arg2, sizeof(arg2));
 			clId2 = G_ClientNumberFromArg(arg2);
-
 
 			if (clId == -1 || clId2 == -1)
 			{
@@ -62,18 +61,48 @@ void AM_Tele(gentity_t *ent)
 			TeleportPlayer(&g_entities[clId], location, g_entities[clId2].client->ps.viewangles);
 			//trap_SendServerCommand( -1, va("cp \"%s^7\n%s\n\"", g_entities[clId].client->pers.netname, roar_teleport_saying.string ) );  
 		}
-		if (trap_Argc() == 4)
+		if (trap_Argc() == 5)
 		{
 			vec3_t		origin;
 			char		buffer[MAX_TOKEN_CHARS];
 			int			i;
+			gentity_t *target; 
+			trap_Argv(1, buffer, sizeof(buffer));
+			clId = G_ClientNumberFromArg(buffer); 
 
-			for (i = 0; i < 3; i++) {
-				trap_Argv(i + 1, buffer, sizeof(buffer));
-				origin[i] = atof(buffer);
+
+			if (clId == -1)
+			{
+				trap_SendServerCommand(ent - g_entities, va("print \"Can't find client ID for %s\n\"", buffer));
+				return;
+			}
+			if (clId == -2)
+			{
+				trap_SendServerCommand(ent - g_entities, va("print \"Ambiguous client ID for %s\n\"", buffer));
+				return;
+			}
+			if (clId >= 32)
+			{
+				trap_SendServerCommand(ent - g_entities, va("print \"Ambiguous client ID for %s\n\"", buffer));
+				return;
+			}
+			// either we have the client id or the string did not match
+			if (!g_entities[clId].inuse)
+			{ // check to make sure client slot is in use
+				trap_SendServerCommand(ent - g_entities, va("print \"Client %s is not active\n\"", buffer));
+				return;
+			}
+			if (g_entities[clId].health <= 0)
+			{
+				return;
 			}
 
-			TeleportPlayer(ent, origin, ent->client->ps.viewangles);
+			for (i = 0; i < 3; i++) {
+				trap_Argv(i+2, buffer, sizeof(buffer));
+				origin[i] = atoi(buffer);
+			}
+			target = &g_entities[clId];
+			TeleportPlayer(target, origin, target->client->ps.viewangles);
 		}
 	}
 	else
