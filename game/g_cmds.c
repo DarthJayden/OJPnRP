@@ -6663,6 +6663,10 @@ ent->client->ps.velocity[2] = 150;
 	{
 		NpcFollowMe(ent);
 	}
+	else if (Q_stricmp(cmd, "npcteam") == 0)
+	{
+		NpcSetTeam(ent);
+	}
 	//[/Jayden:npc control ssytem]
 #endif
 #ifdef VM_MEMALLOC_DEBUG

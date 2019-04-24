@@ -18,3 +18,4 @@ extern void SetNPCAnim(gentity_t *ent);
 extern void KillNPC(gentity_t *ent); 
 extern void SpawnNPC(gentity_t *ent); 
 extern void NpcFollowMe(gentity_t *ent);
+extern void NpcSetTeam(gentity_t *ent); 

@@ -305,3 +305,82 @@ void NpcFollowMe(gentity_t *ent)
 		ai->NPC->behaviorState = BS_FOLLOW_LEADER;
 	}
 }
+
+void NpcSetTeam(gentity_t *ent)
+{
+	if (!(ent->r.svFlags & SVF_ADMIN1) || ((ent->r.svFlags & SVF_ADMIN1) && !(g_adminControl1.integer & (1 << A_NPC))))
+	{
+		trap_SendServerCommand(ent - g_entities, va("print \"^1You have no rights to use this command\n\""));
+		return;
+	}
+	if (selectedAI == ENTITYNUM_NONE)
+	{
+		trap_SendServerCommand(ent - g_entities, va("print \"^1No NPC selected!\n\""));
+		return;
+	}
+	if (trap_Argc() < 2)
+	{
+		trap_SendServerCommand(ent - g_entities, va("print \"^3Usage: /npcteam playerTeam enemyTeam\n\""));
+		return;
+	}
+	gentity_t* ai = &g_entities[selectedAI];
+	char buffer[MAX_STRING_CHARS];
+	int enemyteam, playerteam;
+
+	trap_Argv(1, buffer, sizeof(buffer));
+
+		if (Q_stricmp(buffer, "player") == 0)
+		{
+			playerteam = NPCTEAM_PLAYER;
+		}
+		else if (Q_stricmp(buffer, "enemy") == 0)
+		{
+			playerteam = NPCTEAM_ENEMY;
+		}
+		else if (Q_stricmp(buffer, "neutral") == 0)
+		{
+			playerteam = NPCTEAM_NEUTRAL;
+		}
+		else
+		{
+		trap_SendServerCommand(ent - g_entities, va("print \"^1Incorrect playerteam!\n\""));
+		return;
+		}
+
+	trap_Argv(2, buffer, sizeof(buffer));
+
+		if (Q_stricmp(buffer, "player") == 0)
+		{
+			enemyteam = NPCTEAM_PLAYER;
+		}
+		else if (Q_stricmp(buffer, "enemy") == 0)
+		{
+			enemyteam = NPCTEAM_ENEMY;
+		}
+		else if (Q_stricmp(buffer, "neutral") == 0)
+		{
+			enemyteam = NPCTEAM_NEUTRAL;
+		}
+		else
+		{
+			trap_SendServerCommand(ent - g_entities, va("print \"^1Incorrect enemyteam!\n\""));
+			return;
+		}
+
+	ai->client->playerTeam = playerteam;
+	ai->client->enemyTeam = enemyteam;
+}
+
+void NpcAttack(gentity_t *ent)
+{
+	if (!(ent->r.svFlags & SVF_ADMIN1) || ((ent->r.svFlags & SVF_ADMIN1) && !(g_adminControl1.integer & (1 << A_NPC))))
+	{
+		trap_SendServerCommand(ent - g_entities, va("print \"^1You have no rights to use this command\n\""));
+		return;
+	}
+	if (selectedAI == ENTITYNUM_NONE)
+	{
+		trap_SendServerCommand(ent - g_entities, va("print \"^1No NPC selected!\n\""));
+		return;
+	}
+}
