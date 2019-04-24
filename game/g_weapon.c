@@ -2212,8 +2212,8 @@ THERMAL DETONATOR
 ======================================================================
 */
 //[WeaponSys]
-#define TD_DAMAGE			500 //only on a direct impact
-#define TD_SPLASH_DAM		500
+#define TD_DAMAGE			500 //500 only on a direct impact
+#define TD_SPLASH_DAM		500 //500
 #define TD_SPLASH_RAD		245
 /*
 #define TD_DAMAGE			70 //only do 70 on a direct impact

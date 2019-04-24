@@ -5793,7 +5793,19 @@ if( !ojp_allowBodyDodge.integer )
 		}
 		return qtrue;
 	}
-
+	//Jayden
+	if ( mod == MOD_REPEATER_ALT_SPLASH
+		|| mod == MOD_FLECHETTE_ALT_SPLASH
+		|| mod == MOD_ROCKET_SPLASH
+		|| mod == MOD_ROCKET_HOMING_SPLASH
+		|| mod == MOD_THERMAL_SPLASH
+		|| mod == MOD_TRIP_MINE_SPLASH
+		|| mod == MOD_TIMED_MINE_SPLASH
+		|| mod == MOD_DET_PACK_SPLASH )
+		{
+			//cant dodge splash damage!
+			return qfalse; 
+		}
 	if ( self->client->ps.groundEntityNum == ENTITYNUM_NONE 
 		&& mod != MOD_REPEATER_ALT_SPLASH 
 		&& mod != MOD_FLECHETTE_ALT_SPLASH
