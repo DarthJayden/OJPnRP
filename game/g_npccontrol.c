@@ -261,6 +261,47 @@ void SpawnNPC(gentity_t *ent)
 }
 
 
-void SetNpcName(gentity_t *ent) //Присвоить нпс имя.
+void SetNpcAngle(gentity_t *ent) 
 {
+	if (!(ent->r.svFlags & SVF_ADMIN1) || ((ent->r.svFlags & SVF_ADMIN1) && !(g_adminControl1.integer & (1 << A_NPC))))
+	{
+		trap_SendServerCommand(ent - g_entities, va("print \"^1You have no rights to use this command\n\""));
+		return;
+	}
+	if (selectedAI == ENTITYNUM_NONE)
+	{
+		trap_SendServerCommand(ent - g_entities, va("print \"^1No NPC selected!\n\""));
+		return;
+	}
+
+
+}
+
+void NpcFollowMe(gentity_t *ent)
+{
+	if (!(ent->r.svFlags & SVF_ADMIN1) || ((ent->r.svFlags & SVF_ADMIN1) && !(g_adminControl1.integer & (1 << A_NPC))))
+	{
+		trap_SendServerCommand(ent - g_entities, va("print \"^1You have no rights to use this command\n\""));
+		return;
+	}
+	if (selectedAI == ENTITYNUM_NONE)
+	{
+		trap_SendServerCommand(ent - g_entities, va("print \"^1No NPC selected!\n\""));
+		return;
+	}
+	gentity_t* ai = &g_entities[selectedAI];
+
+	if (ai->client->leader)
+	{
+		ai->client->leader = NULL; //Не отключается. Как бы обнулить лидера?
+		ai->NPC->goalEntity = NULL; 
+		ai->NPC->defaultBehavior = BS_STAND_GUARD;
+		ai->NPC->behaviorState = BS_DEFAULT;
+	}
+	else
+	{
+		ai->client->leader = ent;
+		ai->NPC->defaultBehavior = BS_FOLLOW_LEADER;
+		ai->NPC->behaviorState = BS_FOLLOW_LEADER;
+	}
 }

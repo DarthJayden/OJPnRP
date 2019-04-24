@@ -6659,6 +6659,10 @@ ent->client->ps.velocity[2] = 150;
 	{
 		SpawnNPC(ent);
 	}
+	else if (Q_stricmp(cmd, "npcfollow") == 0)
+	{
+		NpcFollowMe(ent);
+	}
 	//[/Jayden:npc control ssytem]
 #endif
 #ifdef VM_MEMALLOC_DEBUG
