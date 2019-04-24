@@ -2653,7 +2653,7 @@ int G_KnockawayForParry( int move )
 	}
 }
 
-#define SABER_NONATTACK_DAMAGE 1
+//#define SABER_NONATTACK_DAMAGE 100 //was 1
 
 //For strong attacks, we ramp damage based on the point in the attack animation
 static GAME_INLINE int G_GetAttackDamage(gentity_t *self, int minDmg, int maxDmg, float multPoint)
@@ -5038,7 +5038,7 @@ void WP_SaberSpecificDoHit ( gentity_t *self, int saberNum, int bladeNum, gentit
 				}
 				else
 				{
-					if (dmg > SABER_NONATTACK_DAMAGE)
+					if (dmg > g_saberIdleDamage.integer)
 					{ //I suppose I could tie this into the saberblock event, but I'm tired of adding flags to that thing.
 						gentity_t *teS = G_TempEntity( te->s.origin, EV_SABER_CLASHFLARE );
 						VectorCopy(te->s.origin, teS->s.origin);
@@ -5130,7 +5130,7 @@ void WP_SaberDoHit( gentity_t *self, int saberNum, int bladeNum )
 				}
 				else
 				{
-					if (totalDmg[i] > SABER_NONATTACK_DAMAGE)
+					if (totalDmg[i] > g_saberIdleDamage.integer)
 					{ //I suppose I could tie this into the saberblock event, but I'm tired of adding flags to that thing.
 						gentity_t *teS = G_TempEntity( te->s.origin, EV_SABER_CLASHFLARE );
 						VectorCopy(te->s.origin, teS->s.origin);
@@ -6401,12 +6401,12 @@ static GAME_INLINE qboolean CheckSaberDamage(gentity_t *self, int rSaberNum, int
 	else if( BG_SaberInTransitionDamageMove(&self->client->ps) )
 	{//use idle damage for transition moves.  
 		//Playtesting has indicated that using attack damage for transition moves results in unfair insta-hits.
-		dmg = SABER_NONATTACK_DAMAGE;
+		dmg = g_saberIdleDamage.integer;
 		idleDamage = qtrue;
 	}
 	else
 	{//idle saber damage
-		dmg = SABER_NONATTACK_DAMAGE;
+		dmg = g_saberIdleDamage.integer;
 		idleDamage = qtrue;
 	}
 
@@ -6421,7 +6421,7 @@ static GAME_INLINE qboolean CheckSaberDamage(gentity_t *self, int rSaberNum, int
 		return qfalse;
 	}
 
-	if (dmg > SABER_NONATTACK_DAMAGE)
+	if (dmg > g_saberIdleDamage.integer)
 	{
 		dmg *= g_saberDamageScale.value;
 
@@ -6441,19 +6441,19 @@ static GAME_INLINE qboolean CheckSaberDamage(gentity_t *self, int rSaberNum, int
 			(self->client->ps.brokenLimbs & (1 << BROKENLIMB_LARM)))
 		{ //weaken it if an arm is broken
 			dmg *= 0.3;
-			if (dmg <= SABER_NONATTACK_DAMAGE)
+			if (dmg <= g_saberIdleDamage.integer)
 			{
-				dmg = SABER_NONATTACK_DAMAGE+1;
+				dmg = g_saberIdleDamage.integer +1;
 			}
 		}
 	}
 
-	if (dmg > SABER_NONATTACK_DAMAGE && self->client->ps.isJediMaster)
+	if (dmg > g_saberIdleDamage.integer && self->client->ps.isJediMaster)
 	{ //give the Jedi Master more saber attack power
 		dmg *= 2;
 	}
 
-	if (dmg > SABER_NONATTACK_DAMAGE && g_gametype.integer == GT_SIEGE &&
+	if (dmg > g_saberIdleDamage.integer && g_gametype.integer == GT_SIEGE &&
 		self->client->siegeClass != -1 && (bgSiegeClasses[self->client->siegeClass].classflags & (1<<CFL_MORESABERDMG)))
 	{ //this class is flagged to do extra saber damage. I guess 2x will do for now.
 		dmg *= 2;
@@ -6779,7 +6779,7 @@ static GAME_INLINE qboolean CheckSaberDamage(gentity_t *self, int rSaberNum, int
 			&& !mechOther.doParry
 			&& !mechOther.doStun)
 		{//saberlock test		
-			if (dmg > SABER_NONATTACK_DAMAGE || BG_SaberInNonIdleDamageMove(&otherOwner->client->ps, otherOwner->localAnimIndex))
+			if (dmg > g_saberIdleDamage.integer || BG_SaberInNonIdleDamageMove(&otherOwner->client->ps, otherOwner->localAnimIndex))
 			{
 				int lockFactor = g_saberLockFactor.integer;
 

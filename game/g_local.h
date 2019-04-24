@@ -2120,6 +2120,8 @@ extern vmCvar_t	g_AdminLogin1_saying; //Сообщение при заходе в админку 1 уровня.
 extern vmCvar_t	g_adminControl1;
 //[/Jayden: admin system]
 
+extern vmCvar_t	g_saberIdleDamage; 
+
 #include "../namespace_begin.h"
 
 void	trap_Printf( const char *fmt );

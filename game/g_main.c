@@ -388,6 +388,8 @@ vmCvar_t	g_adminControl1; //Права первой админки. Бит.
 
 // [/Jayden: admin system]
 
+vmCvar_t	g_saberIdleDamage; //Jayden idle damage value
+
 // bk001129 - made static to avoid aliasing
 static cvarTable_t		gameCvarTable[] = {
 	// don't override the cheat state set by the system
@@ -830,8 +832,8 @@ static cvarTable_t		gameCvarTable[] = {
 	{ &g_adminPassword1, "g_adminPassword1","1", CVAR_ARCHIVE ,0,qtrue },
 	{ &g_AdminLogin1_saying, "g_AdminLogin1_saying","1", CVAR_ARCHIVE ,0,qtrue },
 	{ &g_adminControl1, "g_adminControl1","-1", CVAR_ARCHIVE ,0,qtrue },
-	
 	//[/Jayden:admin system]
+	{ &g_saberIdleDamage, "g_saberIdleDamage", "3",  CVAR_ARCHIVE, 0, qtrue },
 
 };
 
