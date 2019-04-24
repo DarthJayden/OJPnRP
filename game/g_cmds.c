@@ -6633,6 +6633,10 @@ ent->client->ps.velocity[2] = 150;
 		}
 		AM_Anim(ent->client->ps.clientNum, anim_name, length, hold);
 	}
+	else if (Q_stricmp(cmd, "ammap") == 0)
+	{
+		AM_Map(ent);
+	}
 	//[/Jayden: admin system]
 	//[Jayden: npc control system]
 	else if ((Q_stricmp(cmd, "selectNPC") == 0))

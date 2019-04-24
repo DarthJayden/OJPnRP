@@ -259,3 +259,8 @@ void SpawnNPC(gentity_t *ent)
 	}
 	NPCspawn(ent, npc_type, 0, isVehicle, target_org);
 }
+
+
+void SetNpcName(gentity_t *ent) //Присвоить нпс имя.
+{
+}

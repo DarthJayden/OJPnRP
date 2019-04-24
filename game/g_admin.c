@@ -2,6 +2,24 @@
 #include "g_admin.h"
 #include "q_shared.h"
 
+int BG_GetGametypeForString(const char *gametype) {
+	if (!Q_stricmp(gametype, "ffa")
+		|| !Q_stricmp(gametype, "dm"))			return GT_FFA;
+	else if (!Q_stricmp(gametype, "holocron"))		return GT_HOLOCRON;
+	else if (!Q_stricmp(gametype, "jm"))			return GT_JEDIMASTER;
+	else if (!Q_stricmp(gametype, "duel"))			return GT_DUEL;
+	else if (!Q_stricmp(gametype, "powerduel"))		return GT_POWERDUEL;
+	else if (!Q_stricmp(gametype, "sp")
+		|| !Q_stricmp(gametype, "coop"))			return GT_SINGLE_PLAYER;
+	else if (!Q_stricmp(gametype, "tdm")
+		|| !Q_stricmp(gametype, "tffa")
+		|| !Q_stricmp(gametype, "team"))			return GT_TEAM;
+	else if (!Q_stricmp(gametype, "siege"))			return GT_SIEGE;
+	else if (!Q_stricmp(gametype, "ctf"))			return GT_CTF;
+	else if (!Q_stricmp(gametype, "cty"))			return GT_CTY;
+	else												return -1;
+}
+
 void AM_Tele(gentity_t *ent)
 {
 	vec3_t location;
@@ -306,6 +324,51 @@ void AM_Drop(gentity_t *ent)
 			G_AddEvent(self, EV_NOAMMO, weapon);
 		}
 	}
+}
+
+void AM_Map(gentity_t *ent)
+{
+	if (!(ent->r.svFlags & SVF_ADMIN1) || ((ent->r.svFlags & SVF_ADMIN1) && !(g_adminControl1.integer & (1 << A_MAP))))
+	{
+		trap_SendServerCommand(ent - g_entities, va("print \"^1You have no rights to use this command\n\""));
+		return;
+	}
+	if (!ent)
+	{
+		return; 
+	}
+
+	if (trap_Argc() < 2)
+	{
+		trap_SendServerCommand(ent - g_entities, va("print \"^3Usage: /ammap gametype map_name\n\""));
+		return; 
+	}
+
+	char buffer[MAX_STRING_CHARS];
+	int gametype, i; 
+	char* mapname;
+	const char*	arenainfo;
+	//ammap gametype map_name
+
+		trap_Argv(1, buffer, sizeof(buffer));
+		gametype = BG_GetGametypeForString(buffer);
+		if (gametype == -1) {// So it didn't find a gamemode that matches the arg provided, it could be numeric.
+			i = atoi(buffer);
+			if (i >= 0 && i < GT_MAX_GAME_TYPE) {
+				gametype = i;
+			}
+			else {
+				trap_SendServerCommand(ent - g_entities, va("print \"^1invalid gametype!\n\""));
+				return;
+			}
+		}
+		trap_SendConsoleCommand(EXEC_APPEND, va("g_gametype %d\n", gametype));  //set gametype number
+
+
+		trap_Argv(2, buffer, sizeof(buffer));
+		mapname = buffer; 
+		trap_SendConsoleCommand(EXEC_APPEND, va("map %s\n", mapname));
+
 }
 /*
 void AM_God()

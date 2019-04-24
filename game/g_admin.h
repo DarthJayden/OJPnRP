@@ -3,6 +3,7 @@ extern void AM_Tele(gentity_t *ent);
 extern void AM_Notarget(gentity_t *ent);
 extern void AM_Drop(gentity_t *ent);
 extern void AM_Anim(int target_num, char *anim_name, int length, qboolean hold);
+extern void AM_Map(gentity_t *ent);
 
 extern void StandardSetBodyAnim(gentity_t *self, int anim, int flags);
 typedef enum
@@ -17,7 +18,7 @@ typedef enum
 	A_ADMINBAN,
 	A_ADMINKICK,
 	A_NPC,
-	A_INSULTSILENCE,
+	A_MAP,
 	A_ANIMATE,
 	A_DEMIGOD,
 	A_ADMINSIT,
