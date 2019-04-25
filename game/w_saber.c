@@ -3689,6 +3689,15 @@ int OJP_SaberCanBlock(gentity_t *self, gentity_t *atk, qboolean checkBBoxBlock, 
 	{//can't block this stuff with a saber
 		return 0;
 	}
+
+	if(atk && atk->s.eType == ET_MISSILE && self->client->saber[0].saberFlags&SFL_NOT_ACTIVE_BLOCKING)
+	{
+		return 0; //cannot block missle with this saber type!
+	}
+	if (atk && atk->s.eType == ET_MISSILE && self->client->ps.fd.forcePowerLevel[FP_SABER_DEFENSE] < FORCE_LEVEL_1)
+	{
+		return 0; //We cannot block projectle without saber deffence! 
+	}
 	/*
 	if(atk && atk->client->skillLevel[SK_PISTOL] == 3)
 		// if the attacker have has level 3 pistol

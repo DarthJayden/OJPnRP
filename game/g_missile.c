@@ -668,16 +668,19 @@ qboolean G_MissileImpact( gentity_t *ent, trace_t *trace ) {
 
 			//in this case, deflect it even if we can't actually block it because it hit our saber
 			//WP_SaberCanBlock(otherOwner, ent->r.currentOrigin, 0, 0, qtrue, 0);
-			if ((otherOwner->client && !BG_SaberInAttack(otherOwner->client->ps.saberMove))
+			if (((otherOwner->client && !BG_SaberInAttack(otherOwner->client->ps.saberMove))
 				|| (otherOwner->client && (pm->cmd.buttons & BUTTON_FORCEPOWER || pm->cmd.buttons & BUTTON_FORCEGRIP
-		         || pm->cmd.buttons & BUTTON_FORCE_LIGHTNING) ))
+		         || pm->cmd.buttons & BUTTON_FORCE_LIGHTNING) )) && !otherOwner->client->saber[0].saberFlags&SFL_NOT_ACTIVE_BLOCKING)
 			{//racc - play projectile block animation even in .
 				otherOwner->client->ps.weaponTime = 0;
 				WP_SaberBlockNonRandom(otherOwner, ent->r.currentOrigin, qtrue);
 			}
 
 			//[BoltBlockSys]
-			OJP_HandleBoltBlock(ent, otherOwner, trace);
+			if (!otherOwner->client->saber[0].saberFlags&SFL_NOT_ACTIVE_BLOCKING)
+			{
+				OJP_HandleBoltBlock(ent, otherOwner, trace);
+			}
 			//G_Printf("%i: Bolt deflected since it hit the actual saber\n", other->s.number);
 
 			/*
