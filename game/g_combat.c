@@ -3390,14 +3390,14 @@ extern void RunEmplacedWeapon( gentity_t *ent, usercmd_t **ucmd );
 
 			//[FullDismemberment]
 			//weapon dismemberment so saber isn't the only one :)
-			if (meansOfDeath == MOD_SABER || (meansOfDeath == MOD_TURBLAST) || (meansOfDeath == MOD_FLECHETTE) || (meansOfDeath == MOD_FLECHETTE_ALT_SPLASH) || (meansOfDeath == MOD_CONC_ALT) || (meansOfDeath == MOD_THERMAL_SPLASH) || (meansOfDeath == MOD_TRIP_MINE_SPLASH) || (meansOfDeath == MOD_TIMED_MINE_SPLASH) || (meansOfDeath == MOD_TELEFRAG) || (meansOfDeath == MOD_CRUSH) || (meansOfDeath == MOD_MELEE && G_HeavyMelee( attacker )) )//saber or heavy melee (claws)
+			if ((meansOfDeath == MOD_SABER && !(attacker->client->saber[0].saberFlags2&SFL2_NO_DISMEMBERMENT /*This saber cannot do dismember!*/)) || (meansOfDeath == MOD_TURBLAST) || (meansOfDeath == MOD_FLECHETTE) || (meansOfDeath == MOD_FLECHETTE_ALT_SPLASH) || (meansOfDeath == MOD_CONC_ALT) || (meansOfDeath == MOD_THERMAL_SPLASH) || (meansOfDeath == MOD_TRIP_MINE_SPLASH) || (meansOfDeath == MOD_TIMED_MINE_SPLASH) || (meansOfDeath == MOD_TELEFRAG) || (meansOfDeath == MOD_CRUSH) || (meansOfDeath == MOD_MELEE && G_HeavyMelee( attacker )) )//saber or heavy melee (claws)
 			//if (meansOfDeath == MOD_SABER || (meansOfDeath == MOD_MELEE && G_HeavyMelee( attacker )) )//saber or heavy melee (claws)
 			{ //update the anim on the actual skeleton (so bolt point will reflect the correct position) and then check for dismem
 				G_UpdateClientAnims(self, 1.0f);
 				G_CheckForDismemberment(self, attacker, self->pos1, damage, anim, qfalse);
 			}
 			//GIBBING!!! making use of g_checkforblowing up - Wahoo
-			if (meansOfDeath == MOD_ROCKET || (meansOfDeath == MOD_ROCKET_SPLASH) || (meansOfDeath == MOD_ROCKET_HOMING) || (meansOfDeath == MOD_ROCKET_HOMING_SPLASH) || (meansOfDeath == MOD_THERMAL) || (meansOfDeath == MOD_DET_PACK_SPLASH) || (meansOfDeath == MOD_TELEFRAG) || (meansOfDeath == MOD_TRIGGER_HURT) || (meansOfDeath == MOD_LAVA))
+			if (meansOfDeath == MOD_ROCKET || (meansOfDeath == MOD_ROCKET_SPLASH) || (meansOfDeath == MOD_ROCKET_HOMING) || (meansOfDeath == MOD_ROCKET_HOMING_SPLASH) || (meansOfDeath == MOD_THERMAL) || (meansOfDeath == MOD_THERMAL_SPLASH) || (meansOfDeath == MOD_DET_PACK_SPLASH) || (meansOfDeath == MOD_TELEFRAG) || (meansOfDeath == MOD_TRIGGER_HURT) || (meansOfDeath == MOD_LAVA))
 			{
 				G_UpdateClientAnims(self, 1.0f);
 				G_CheckForblowingup(self, attacker, self->pos1, damage, anim, qfalse);
@@ -6738,7 +6738,7 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 				targ->client &&
 				(targ->s.eFlags & EF_DEAD))
 			{ //an NPC that's already dead. Maybe we can cut some more limbs off!
-				if ( (mod == MOD_SABER || (mod == MOD_MELEE && G_HeavyMelee( attacker )) )//saber or heavy melee (claws)
+				if ( ((mod == MOD_SABER && !(attacker->client->saber[0].saberFlags2&SFL2_NO_DISMEMBERMENT)) || (mod == MOD_MELEE && G_HeavyMelee( attacker )) )//saber or heavy melee (claws)
 					&& take > 2
 					&& !(dflags&DAMAGE_NO_DISMEMBER) )
 				{
