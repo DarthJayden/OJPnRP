@@ -14169,6 +14169,13 @@ void CG_HolsteredWeaponRender( centity_t *cent, clientInfo_t *ci, int holsterTyp
 		case HLR_DISRUPTOR:
 			weaponType = WP_DISRUPTOR;
 			break;
+		case HLR_VIBROBLADE_1:
+			weaponType = WP_SABER;
+			break;
+		case HLR_VIBROBLADE_2:
+			weaponType = WP_SABER;
+			secondWeap = qtrue;
+			break;
 		default:
 			CG_Printf("Unknown weaponType for holsterType %i in CG_HolsteredWeaponRender.\n", holsterType);
 			return;
@@ -14311,7 +14318,14 @@ void CG_VisualWeaponsUpdate( centity_t *cent, clientInfo_t *ci )
 						}
 						else
 						{//use offset method
-							CG_HolsteredWeaponRender(cent, ci, HLR_SINGLESABER_1);
+							if (ci->saber[0].saberFlags2&SFL2_BACK_IDLE) //Jayden
+							{
+								CG_HolsteredWeaponRender(cent, ci, HLR_VIBROBLADE_1);
+							}
+							else
+							{
+								CG_HolsteredWeaponRender(cent, ci, HLR_SINGLESABER_1);
+							}
 						}
 					}
 
@@ -14327,7 +14341,14 @@ void CG_VisualWeaponsUpdate( centity_t *cent, clientInfo_t *ci )
 						}
 						else
 						{//use offset method
-							CG_HolsteredWeaponRender(cent, ci, HLR_SINGLESABER_2);
+							if (ci->saber[0].saberFlags2&SFL2_BACK_IDLE) //Jayden
+							{
+								CG_HolsteredWeaponRender(cent, ci, HLR_VIBROBLADE_2);
+							}
+							else
+							{
+								CG_HolsteredWeaponRender(cent, ci, HLR_SINGLESABER_2);
+							}
 						}
 					}
 				}

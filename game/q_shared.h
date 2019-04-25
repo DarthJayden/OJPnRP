@@ -799,6 +799,7 @@ typedef enum
 #define SFL2_ALWAYS_BLOCK2			(1<<15)//if set, the blades will always be blocking (good for things like shields that should always block)
 #define SFL2_NO_MANUAL_DEACTIVATE2	(1<<16)//if set, the blades cannot manually be toggled on and off
 #define SFL2_TRANSITION_DAMAGE2		(1<<17)//if set, the blade does damage in start, transition and return anims (like strong style does)
+#define SFL2_BACK_IDLE				(1<<17)//if set, the saber holsters on back
 
 typedef struct
 {

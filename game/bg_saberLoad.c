@@ -2071,7 +2071,21 @@ qboolean WP_SaberParseParms( const char *SaberName, saberInfo_t *saber )
 			}
 			continue;
 		}
-
+		// [Jayden: vibroblade]
+		if (!Q_stricmp(token, "idleInBack"))
+		{
+			if (COM_ParseInt(&p, &n))
+			{
+				SkipRestOfLine(&p);
+				continue;
+			}
+			if (n)
+			{
+				saber->saberFlags2 |= SFL2_BACK_IDLE;
+			}
+			continue;
+		}
+		// [/Jayden]
 		//splashRadius - radius of splashDamage
 		if ( !Q_stricmp( token, "splashRadius" ) ) 
 		{

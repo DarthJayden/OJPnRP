@@ -32,6 +32,8 @@ enum
 	HLR_REPEATER,		//repeater
 	HLR_FLECHETTE,		//flechette
 	HLR_DISRUPTOR,		//disruptor
+	HLR_VIBROBLADE_1,		//saber with non-energy blade. Jayden
+	HLR_VIBROBLADE_2,		//saber with non-energy blade. Jayden
 	MAX_HOLSTER		//max possible holster weapon positions
 };
 
